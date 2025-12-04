@@ -1,4 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import React from 'react'
+import type { Meta, StoryObj } from '@storybook/nextjs'
 import { Label } from './label'
 
 const meta = {
@@ -44,7 +45,10 @@ export const Required: Story = {
 export const Disabled: Story = {
   render: () => (
     <div className="space-y-2">
-      <Label htmlFor="disabled-input" className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+      <Label
+        htmlFor="disabled-input"
+        className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      >
         Disabled field
       </Label>
       <input

@@ -1,4 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import React from 'react'
+import type { Meta, StoryObj } from '@storybook/nextjs'
 import { LoadingSpinner } from './loading-spinner'
 
 const meta = {

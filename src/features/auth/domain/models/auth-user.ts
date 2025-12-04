@@ -10,17 +10,26 @@ export class AuthUser {
     public readonly provider: 'google' | 'guest',
     public readonly name: string,
     public readonly email?: string,
-    public readonly avatarUrl?: string,
     public readonly avatarType?: string
   ) {}
 
-  static fromSupabaseUser(user: any): GoogleUser {
+  static fromSupabaseUser(
+    user: {
+      id: string
+      email?: string
+      user_metadata: {
+        name?: string
+        full_name?: string
+      }
+    },
+    avatarType: string = 'default'
+  ): GoogleUser {
     return {
       id: user.id,
       email: user.email!,
       name:
         user.user_metadata.name || user.user_metadata.full_name || user.email!,
-      avatarUrl: user.user_metadata.avatar_url,
+      avatarType,
       provider: 'google',
     }
   }
@@ -45,10 +54,7 @@ export class AuthUser {
   /**
    * ユーザーの表示用アバターを取得
    */
-  static getDisplayAvatar(user: AppUser): string | null {
-    if (this.isGoogle(user)) {
-      return user.avatarUrl || null
-    }
+  static getDisplayAvatar(user: AppUser): string {
     return user.avatarType
   }
 
