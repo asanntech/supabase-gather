@@ -1,8 +1,8 @@
 'use client'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar'
-import { AppUser } from '../../domain/types'
-import { AuthUser } from '../../domain/models/auth-user'
+import { AppUser } from '../domain/types'
+import { AuthUser } from '../domain/models/auth-user'
 import { cn } from '@/lib/utils'
 
 interface UserAvatarProps {
