@@ -1,4 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import React from 'react'
+import type { Meta, StoryObj } from '@storybook/nextjs'
 import { Separator } from './separator'
 
 const meta = {
@@ -31,12 +32,16 @@ export const Horizontal: Story = {
     <div className="w-64 space-y-4">
       <div>
         <h3 className="text-lg font-semibold">Section 1</h3>
-        <p className="text-sm text-muted-foreground">This is the first section.</p>
+        <p className="text-sm text-muted-foreground">
+          This is the first section.
+        </p>
       </div>
       <Separator />
       <div>
         <h3 className="text-lg font-semibold">Section 2</h3>
-        <p className="text-sm text-muted-foreground">This is the second section.</p>
+        <p className="text-sm text-muted-foreground">
+          This is the second section.
+        </p>
       </div>
     </div>
   ),
@@ -67,11 +72,19 @@ export const InNavigation: Story = {
   render: () => (
     <div className="w-64">
       <nav className="space-y-2">
-        <a href="#" className="block px-3 py-2 rounded-md hover:bg-muted">Home</a>
-        <a href="#" className="block px-3 py-2 rounded-md hover:bg-muted">About</a>
+        <a href="#" className="block px-3 py-2 rounded-md hover:bg-muted">
+          Home
+        </a>
+        <a href="#" className="block px-3 py-2 rounded-md hover:bg-muted">
+          About
+        </a>
         <Separator className="my-2" />
-        <a href="#" className="block px-3 py-2 rounded-md hover:bg-muted">Contact</a>
-        <a href="#" className="block px-3 py-2 rounded-md hover:bg-muted">Support</a>
+        <a href="#" className="block px-3 py-2 rounded-md hover:bg-muted">
+          Contact
+        </a>
+        <a href="#" className="block px-3 py-2 rounded-md hover:bg-muted">
+          Support
+        </a>
       </nav>
     </div>
   ),
