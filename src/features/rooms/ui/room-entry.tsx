@@ -2,14 +2,15 @@
 
 import { useEffect } from 'react'
 import { AppUser } from '@/features/auth/domain/types'
-import { UserAvatar } from '@/features/auth/ui/components/user-avatar'
+import { RoomMember, PresenceEvent } from '../domain/types'
+import { UserAvatar } from '@/features/auth/ui/user-avatar'
 import { Button } from '@/shared/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/card'
 import { LoadingSpinner } from '@/shared/ui/loading-spinner'
 import { Alert, AlertTitle, AlertDescription } from '@/shared/ui/alert'
 import { Separator } from '@/shared/ui/separator'
-import { useRoom } from '../../application/hooks/use-room'
-import { useRoomPresence } from '../../application/hooks/use-room-presence'
+import { useRoom } from '../application/hooks/use-room'
+import { useRoomPresence } from '../application/hooks/use-room-presence'
 import {
   Users,
   UserMinus,
@@ -195,7 +196,7 @@ export function RoomEntry({ roomId, user }: RoomEntryProps) {
             </p>
           ) : (
             <div className="space-y-3">
-              {currentMembers.map(member => {
+              {currentMembers.map((member: RoomMember) => {
                 const isCurrentUser = member.userId === user.id
                 const joinTime = new Date(member.joinedAt).toLocaleTimeString(
                   'ja-JP',
@@ -253,36 +254,37 @@ export function RoomEntry({ roomId, user }: RoomEntryProps) {
 
           <CardContent>
             <div className="space-y-2 max-h-40 overflow-y-auto">
-              {presenceEvents.slice(-5).map((event, index) => {
-                const eventTime = new Date(event.timestamp).toLocaleTimeString(
-                  'ja-JP',
-                  {
+              {presenceEvents
+                .slice(-5)
+                .map((event: PresenceEvent, index: number) => {
+                  const eventTime = new Date(
+                    event.timestamp
+                  ).toLocaleTimeString('ja-JP', {
                     hour: '2-digit',
                     minute: '2-digit',
                     second: '2-digit',
-                  }
-                )
+                  })
 
-                return (
-                  <div
-                    key={`${event.userId}-${event.timestamp.getTime()}-${index}`}
-                    className="flex items-center space-x-2 text-sm p-2 rounded bg-gray-50"
-                  >
+                  return (
                     <div
-                      className={`w-2 h-2 rounded-full ${
-                        event.type === 'join' ? 'bg-green-500' : 'bg-red-500'
-                      }`}
-                    />
-                    <span className="font-medium">{event.user.name}</span>
-                    <span className="text-muted-foreground">
-                      が{event.type === 'join' ? '参加' : '退室'}しました
-                    </span>
-                    <span className="text-muted-foreground ml-auto">
-                      {eventTime}
-                    </span>
-                  </div>
-                )
-              })}
+                      key={`${event.userId}-${event.timestamp.getTime()}-${index}`}
+                      className="flex items-center space-x-2 text-sm p-2 rounded bg-gray-50"
+                    >
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          event.type === 'join' ? 'bg-green-500' : 'bg-red-500'
+                        }`}
+                      />
+                      <span className="font-medium">{event.user.name}</span>
+                      <span className="text-muted-foreground">
+                        が{event.type === 'join' ? '参加' : '退室'}しました
+                      </span>
+                      <span className="text-muted-foreground ml-auto">
+                        {eventTime}
+                      </span>
+                    </div>
+                  )
+                })}
             </div>
 
             {presenceEvents.length > 5 && (
