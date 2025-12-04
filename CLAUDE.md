@@ -43,10 +43,11 @@ Claude / Claude Code は、**フロントエンド関連の作業をする際に
   - Tailwind CSS
 - データフェッチ / 状態管理:
   - **TanStack Query（@tanstack/react-query）**
+  - **Zustand（状態管理）**
 - バックエンド:
   - Supabase（サーバー側・API 経由で利用）
 
-`next-ddd-clean-frontend` サブエージェントは、**UI ライブラリとして shadcn/ui、データフェッチとして TanStack Query を前提に動作するようにしてください。**
+`next-ddd-clean-frontend` サブエージェントは、**UI ライブラリとして shadcn/ui、データフェッチとして TanStack Query、状態管理として Zustand を前提に動作するようにしてください。**
 
 ---
 
