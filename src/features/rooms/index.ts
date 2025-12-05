@@ -14,4 +14,4 @@ export { useRoom } from './application/hooks/use-room'
 export { useRoomPresence } from './application/hooks/use-room-presence'
 
 // UI Components
-export { RoomEntry } from './ui/room-entry'
+export { RoomEntry } from './ui/components/room-entry'

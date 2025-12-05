@@ -5,9 +5,9 @@ import { Button } from '@/shared/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
-import { AvatarSelector } from '@/features/auth/ui/avatar-selector'
+import { AvatarSelector } from '@/features/auth/ui/components/avatar-selector'
 import { useAuth } from '@/features/auth/application/hooks/use-auth'
-import { useProfile } from '../application/hooks/use-profile'
+import { useProfile } from '../../application/hooks/use-profile'
 import { AlertCircle, CheckCircle } from 'lucide-react'
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 
@@ -112,7 +112,7 @@ export function ProfileSetup({ onComplete }: ProfileSetupProps) {
             <Label>アバター</Label>
             <AvatarSelector
               value={form.avatarType}
-              onChange={(avatarType: string) => {
+              onChange={avatarType => {
                 setForm(prev => ({ ...prev, avatarType }))
                 setErrors([])
               }}

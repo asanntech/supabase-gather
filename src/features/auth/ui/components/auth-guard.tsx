@@ -1,7 +1,7 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { useAuth } from '../application/hooks/use-auth'
+import { useAuth } from '../hooks/use-auth'
 import { LoginForm } from './login-form'
 import { LoadingSpinner } from '@/shared/ui/loading-spinner'
 

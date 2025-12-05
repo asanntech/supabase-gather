@@ -16,7 +16,7 @@ interface AuthStore extends AuthState {
 }
 
 const initialState: AuthState = {
-  status: 'unauthenticated',
+  status: 'loading',
   user: null,
   isGuest: false,
   isGoogle: false,
