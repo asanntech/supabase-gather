@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 import { AppUser, GoogleUser, GuestUser, GuestLoginInput } from '../types'
+import { AvatarType, AvatarService } from '@/features/avatar'
 
 /**
  * 認証ユーザーのドメインモデル
@@ -10,7 +11,7 @@ export class AuthUser {
     public readonly provider: 'google' | 'guest',
     public readonly name: string,
     public readonly email?: string,
-    public readonly avatarType?: string
+    public readonly avatarType?: AvatarType
   ) {}
 
   static fromSupabaseUser(
@@ -22,7 +23,7 @@ export class AuthUser {
         full_name?: string
       }
     },
-    avatarType: string = 'default'
+    avatarType: AvatarType = 'blue'
   ): GoogleUser {
     return {
       id: user.id,
@@ -54,7 +55,7 @@ export class AuthUser {
   /**
    * ユーザーの表示用アバターを取得
    */
-  static getDisplayAvatar(user: AppUser): string {
+  static getDisplayAvatar(user: AppUser): AvatarType {
     return user.avatarType
   }
 
@@ -71,7 +72,10 @@ export class AuthUser {
     }
 
     if (this.isGuest(user)) {
-      return !!user.avatarType
+      return (
+        !!user.avatarType &&
+        AvatarService.validateAvatarType(user.avatarType).isValid
+      )
     }
 
     return false
