@@ -52,19 +52,15 @@
 
 ## 4. ログイン → 入室までのフロー
 
-### 画面構成とルーティング
+### 画面構成（ルーム一覧は省略）
 
-**1. トップページ（ルート: `/`）**
+**1. トップページ**
 
 - アプリ名「Supabase Gather」
 - 説明文（1〜2行）
 - ボタン：
   - 「Googleでログインして入室する」
   - 「ゲストとして入室する」
-- 認証完了後、入室準備モーダルを表示
-
-**レイアウト参考**:
-https://www.figma.com/design/vES3VewH8Qo1MA0Au0oujK/Supabase-Gather?node-id=23-2&t=h312ToASd1B6kW07-0
 
 **2. 入室準備モーダル（毎回表示）**
 
@@ -77,25 +73,12 @@ https://www.figma.com/design/vES3VewH8Qo1MA0Au0oujK/Supabase-Gather?node-id=23-2
     - 帽子色違いのドット絵を並べて選択できるUI
 - 「入室」ボタン押下で、ルーム画面へ遷移
 
-**レイアウト参考**:
-https://www.figma.com/design/vES3VewH8Qo1MA0Au0oujK/Supabase-Gather?node-id=23-59&t=h312ToASd1B6kW07-0
-
-**3. ルーム画面（ルート: `/room/:room_id`）**
+**3. ルーム画面（メイン）**
 
 - 左：2Dスペース + アバター表示
 - 右：テキストチャット
 - 上部：ルーム名、接続人数（例：`3 / 5`）
 - 下部：現在の表示名と、アバター変更ボタン（モーダル再表示でも可）
-
-**レイアウト参考**:
-https://www.figma.com/design/vES3VewH8Qo1MA0Au0oujK/Supabase-Gather?node-id=23-162&t=h312ToASd1B6kW07-0
-
-### ルーティング仕様
-
-- **トップページ**: `/` - ランディング・認証・入室準備
-- **ルーム画面**: `/room/:room_id` - メインのバーチャルオフィス機能
-  - 例: `/room/main-room` (MVPでは固定値)
-  - 将来的には複数ルーム対応可能
 
 ---
 

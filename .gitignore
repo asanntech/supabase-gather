@@ -41,7 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 .history/
-.storybook-static/
 
 # AI/MCP configuration
 .mcp.json
