@@ -1,49 +1,27 @@
 'use client'
 
-import { AuthGuard, useAuth, UserAvatar } from '@/features/auth'
-import { RoomEntry } from '@/features/rooms'
-import { Button } from '@/shared/ui/button'
-
-function Dashboard() {
-  const { user, signOut, isSigningOut, isGuest } = useAuth()
-
-  if (!user) return null
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* ヘッダー */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <UserAvatar user={user} size="md" />
-              <div>
-                <h1 className="text-lg font-semibold">{user.name}</h1>
-                <p className="text-sm text-muted-foreground">
-                  {isGuest ? 'ゲストユーザー' : 'Googleアカウント'}
-                </p>
-              </div>
-            </div>
-
-            <Button variant="outline" onClick={signOut} disabled={isSigningOut}>
-              {isSigningOut ? 'ログアウト中...' : 'ログアウト'}
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* メインコンテンツ */}
-      <div className="container mx-auto px-4 py-8">
-        <RoomEntry roomId="main-room" user={user} />
-      </div>
-    </div>
-  )
-}
+import { useAuth } from '@/features/auth'
+import { RoomScreen } from '@/features/rooms/ui/room-screen'
+import { LandingPage } from '@/features/rooms/ui/landing-page'
+import { LoadingSpinner } from '@/shared/ui/loading-spinner'
 
 export default function Home() {
-  return (
-    <AuthGuard>
-      <Dashboard />
-    </AuthGuard>
-  )
+  const { isLoading, isAuthenticated, user } = useAuth()
+
+  // 認証チェック中
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner size="lg" />
+      </div>
+    )
+  }
+
+  // 未認証の場合はランディングページを表示
+  if (!isAuthenticated || !user) {
+    return <LandingPage />
+  }
+
+  // 認証済みの場合はルーム画面を表示（入室準備モーダルが自動的に表示される）
+  return <RoomScreen roomId="main-room" user={user} />
 }
