@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { AvatarSelector } from '@/features/auth/ui/avatar-selector'
+import { AvatarType } from '@/features/avatar'
 import { useAuth } from '@/features/auth/application/hooks/use-auth'
 import { useProfile } from '../application/hooks/use-profile'
 import { AlertCircle, CheckCircle } from 'lucide-react'
@@ -22,7 +23,10 @@ export function ProfileSetup({ onComplete }: ProfileSetupProps) {
   const { user, isGoogle } = useAuth()
   const { initializeProfile, isCreating, createError } = useProfile()
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    name: string
+    avatarType: AvatarType | ''
+  }>({
     name: user?.name || '',
     avatarType: '',
   })
@@ -112,7 +116,7 @@ export function ProfileSetup({ onComplete }: ProfileSetupProps) {
             <Label>アバター</Label>
             <AvatarSelector
               value={form.avatarType}
-              onChange={(avatarType: string) => {
+              onChange={(avatarType: AvatarType) => {
                 setForm(prev => ({ ...prev, avatarType }))
                 setErrors([])
               }}

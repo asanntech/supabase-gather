@@ -1,8 +1,10 @@
 'use client'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar'
+import Image from 'next/image'
+import { Avatar, AvatarFallback } from '@/shared/ui/avatar'
 import { AppUser } from '../domain/types'
 import { AuthUser } from '../domain/models/auth-user'
+import { AvatarService, AVATAR_TYPES } from '@/features/avatar'
 import { cn } from '@/lib/utils'
 
 interface UserAvatarProps {
@@ -11,55 +13,46 @@ interface UserAvatarProps {
   className?: string
 }
 
-// アバタータイプから絵文字へのマッピング
-const avatarEmojiMap: Record<string, string> = {
-  cat: '🐱',
-  dog: '🐶',
-  rabbit: '🐰',
-  bear: '🐻',
-  panda: '🐼',
-  fox: '🦊',
-  koala: '🐨',
-  pig: '🐷',
-}
-
 const sizeClasses = {
   sm: 'h-8 w-8',
   md: 'h-10 w-10',
   lg: 'h-12 w-12',
 }
 
+const sizePixels = {
+  sm: 32,
+  md: 40,
+  lg: 48,
+}
+
 export function UserAvatar({ user, size = 'md', className }: UserAvatarProps) {
-  const avatarDisplay = AuthUser.getDisplayAvatar(user)
+  const avatarType = AuthUser.getDisplayAvatar(user)
 
-  // Googleユーザーの場合は画像を使用
-  if (AuthUser.isGoogle(user) && avatarDisplay) {
-    return (
-      <Avatar className={cn(sizeClasses[size], className)}>
-        <AvatarImage src={avatarDisplay} alt={user.name} />
-        <AvatarFallback>{user.name.slice(0, 2).toUpperCase()}</AvatarFallback>
-      </Avatar>
-    )
-  }
+  // 全ユーザー（GoogleもGuest）でSVGアバターを使用
+  if (avatarType && AVATAR_TYPES.includes(avatarType)) {
+    const displayInfo = AvatarService.createDisplayInfo(avatarType)
 
-  // ゲストユーザーの場合は絵文字を使用
-  if (AuthUser.isGuest(user) && avatarDisplay) {
-    const emoji = avatarEmojiMap[avatarDisplay] || '👤'
     return (
       <div
         className={cn(
-          'flex items-center justify-center rounded-full bg-muted text-2xl',
+          'relative overflow-hidden rounded-full',
           sizeClasses[size],
           className
         )}
         title={user.name}
       >
-        {emoji}
+        <Image
+          src={displayInfo.imagePath}
+          alt={`${user.name}のアバター (${displayInfo.displayName})`}
+          width={sizePixels[size]}
+          height={sizePixels[size]}
+          className="object-cover"
+        />
       </div>
     )
   }
 
-  // フォールバック
+  // フォールバック（アバタータイプが無効な場合）
   return (
     <Avatar className={cn(sizeClasses[size], className)}>
       <AvatarFallback>{user.name.slice(0, 2).toUpperCase()}</AvatarFallback>

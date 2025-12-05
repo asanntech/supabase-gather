@@ -8,6 +8,7 @@ import { Label } from '@/shared/ui/label'
 import { Separator } from '@/shared/ui/separator'
 import { useAuth } from '../application/hooks/use-auth'
 import { AvatarSelector } from './avatar-selector'
+import { AvatarType } from '@/features/avatar'
 import { AlertCircle } from 'lucide-react'
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 
@@ -18,7 +19,10 @@ interface LoginFormProps {
 export function LoginForm({ onSuccess }: LoginFormProps) {
   const { signInAsGuest, signInWithGoogle, isSigningInWithGoogle } = useAuth()
 
-  const [guestForm, setGuestForm] = useState({
+  const [guestForm, setGuestForm] = useState<{
+    name: string
+    avatarType: AvatarType | ''
+  }>({
     name: '',
     avatarType: '',
   })
@@ -37,7 +41,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
     setErrors(newErrors)
 
-    if (newErrors.length === 0) {
+    if (newErrors.length === 0 && guestForm.avatarType !== '') {
       signInAsGuest({
         name: guestForm.name.trim(),
         avatarType: guestForm.avatarType,
