@@ -1,5 +1,4 @@
 import { AppUser } from '@/features/auth/domain/types'
-import { AvatarType } from '@/features/avatar'
 
 /**
  * ルームのドメインモデル
@@ -105,7 +104,7 @@ export class RoomPresence {
     const avatar =
       (presenceData.user_avatar as Record<string, string | null>) || {}
 
-    const avatarType: AvatarType = (avatar.value as AvatarType) || 'blue'
+    const avatarType = avatar.value || 'default'
 
     // presenceDataからproviderを判断する必要があるが、ここではavatarTypeのみで統一
     // 実際のprovider判断ロジックは必要に応じて追加

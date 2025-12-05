@@ -1,6 +1,4 @@
 // 認証関連の型定義
-import { AvatarType } from '@/features/avatar/domain/types'
-
 export type AuthProvider = 'google' | 'guest'
 
 export type AuthStatus =
@@ -14,7 +12,7 @@ export interface GoogleUser {
   id: string
   email: string
   name: string
-  avatarType: AvatarType
+  avatarType: string
   provider: 'google'
 }
 
@@ -22,7 +20,7 @@ export interface GoogleUser {
 export interface GuestUser {
   id: string
   name: string
-  avatarType: AvatarType
+  avatarType: string
   provider: 'guest'
 }
 
@@ -46,7 +44,7 @@ export interface AuthError {
 // ゲストログイン入力
 export interface GuestLoginInput {
   name: string
-  avatarType: AvatarType
+  avatarType: string
 }
 
 // 認証イベント
