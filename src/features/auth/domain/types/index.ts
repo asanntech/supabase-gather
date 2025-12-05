@@ -12,7 +12,7 @@ export interface GoogleUser {
   id: string
   email: string
   name: string
-  avatarType: string
+  avatarUrl?: string
   provider: 'google'
 }
 

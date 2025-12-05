@@ -74,7 +74,7 @@ export function useAuth() {
     return () => {
       unsubscribe?.()
     }
-  }, [status, setUser, setStatus, initializeAuth])
+  }, [status, setUser, initializeAuth])
 
   // 初期ロード時の状態更新
   useEffect(() => {

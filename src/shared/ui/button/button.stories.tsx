@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs'
+import type { Meta, StoryObj } from '@storybook/react'
 import { Button } from './button'
 
 const meta = {
@@ -11,14 +11,7 @@ const meta = {
   argTypes: {
     variant: {
       control: { type: 'select' },
-      options: [
-        'default',
-        'destructive',
-        'outline',
-        'secondary',
-        'ghost',
-        'link',
-      ],
+      options: ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'],
     },
     size: {
       control: { type: 'select' },

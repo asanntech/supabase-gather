@@ -63,7 +63,7 @@ export class SupabaseProfileRepository implements IProfileRepository {
     input: UpdateProfileInput
   ): Promise<UserProfile> {
     try {
-      const updateData: Record<string, string> = {}
+      const updateData: any = {}
       if (input.name !== undefined) updateData.name = input.name
       if (input.avatarType !== undefined)
         updateData.avatar_type = input.avatarType
@@ -102,14 +102,14 @@ export class SupabaseProfileRepository implements IProfileRepository {
     }
   }
 
-  private mapToProfile(data: Record<string, unknown>): UserProfile {
+  private mapToProfile(data: any): UserProfile {
     return {
-      id: data.id as string,
-      userId: data.user_id as string,
-      name: data.name as string,
-      avatarType: data.avatar_type as string,
-      createdAt: new Date(data.created_at as string),
-      updatedAt: new Date(data.updated_at as string),
+      id: data.id,
+      userId: data.user_id,
+      name: data.name,
+      avatarType: data.avatar_type,
+      createdAt: new Date(data.created_at),
+      updatedAt: new Date(data.updated_at),
     }
   }
 }
