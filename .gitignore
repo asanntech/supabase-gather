@@ -42,6 +42,7 @@ yarn-error.log*
 next-env.d.ts
 
 .history/
+.mcp.sample.json
 
 # AI/MCP configuration
 .mcp.json
