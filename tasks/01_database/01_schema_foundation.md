@@ -65,8 +65,14 @@ INSERT INTO rooms (name, description) VALUES
 
 ## 検証方法
 
-- テーブル作成確認: `\d profiles`, `\d rooms`
-- 初期データ確認: `SELECT * FROM rooms;`
+### Supabase Studio経由で確認
+
+1. Supabase Studio にアクセス: http://127.0.0.1:54323
+2. 左メニューから「Table Editor」を選択
+3. 以下を確認:
+   - `profiles` テーブルが作成されていること
+   - `rooms` テーブルが作成されていること
+   - `rooms` テーブルに初期データ（main-room）が存在すること
 
 ## 次のタスクへの準備
 

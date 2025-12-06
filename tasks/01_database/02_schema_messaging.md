@@ -68,8 +68,17 @@ CREATE TABLE avatar_positions (
 
 ## 検証方法
 
-- テーブル作成確認: `\d messages`, `\d avatar_positions`
-- 外部キー制約確認: 参照整合性テスト
+### Supabase Studio経由で確認
+
+1. Supabase Studio にアクセス: http://127.0.0.1:54323
+2. 左メニューから「Table Editor」を選択
+3. 以下を確認:
+   - `messages` テーブルが作成されていること
+   - `avatar_positions` テーブルが作成されていること
+4. 各テーブルのカラム構造と外部キー制約を確認:
+   - `messages.room_id` → `rooms.id`
+   - `messages.user_id` → `auth.users.id`
+   - `avatar_positions.room_id` → `rooms.id`
 
 ## 次のタスクへの準備
 

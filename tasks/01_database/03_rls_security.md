@@ -76,8 +76,19 @@ ON avatar_positions FOR ALL USING (true);
 
 ## 検証方法
 
-- RLS状態確認: `\d+ profiles` 等でRLSが有効か確認
-- ポリシー確認: `\dp profiles` 等でポリシー一覧確認
+### Supabase Studio経由で確認
+
+1. Supabase Studio にアクセス: http://127.0.0.1:54323
+2. 左メニューから「Authentication」→「Policies」を選択
+3. 各テーブルのRLS設定を確認:
+   - 各テーブルでRLSが「Enabled」になっていること
+   - 設定されたポリシーが表示されていること
+4. 「SQL Editor」から以下のクエリでもポリシーを確認可能:
+   ```sql
+   SELECT schemaname, tablename, policyname, cmd, qual
+   FROM pg_policies
+   WHERE schemaname = 'public';
+   ```
 
 ## セキュリティ注意事項
 

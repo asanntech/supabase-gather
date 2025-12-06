@@ -122,26 +122,31 @@ CREATE INDEX idx_avatar_positions_updated ON avatar_positions(updated_at DESC);
 
 ## セットアップ検証
 
-### 検証スクリプト
+### Supabase Studio経由で確認
 
-```sql
--- テーブル存在確認
-SELECT table_name FROM information_schema.tables
-WHERE table_schema = 'public'
-AND table_name IN ('profiles', 'rooms', 'messages', 'avatar_positions');
-
--- 初期データ確認
-SELECT id, name, description FROM rooms;
-
--- RLS状態確認
-SELECT schemaname, tablename, rowsecurity
-FROM pg_tables
-WHERE schemaname = 'public' AND rowsecurity = true;
-
--- インデックス確認
-SELECT indexname, tablename FROM pg_indexes
-WHERE schemaname = 'public' AND indexname LIKE 'idx_%';
-```
+1. **Supabase Studio にアクセス**: http://127.0.0.1:54323
+2. **テーブル作成確認**:
+   - 左メニューから「Table Editor」を選択
+   - `profiles`, `rooms`, `messages`, `avatar_positions` テーブルが存在することを確認
+3. **初期データ確認**:
+   - `rooms` テーブルを開き、`main-room` レコードが存在することを確認
+4. **RLS設定確認**:
+   - 左メニューから「Authentication」→「Policies」を選択
+   - 各テーブルでRLSが有効になっていることを確認
+5. **SQL Editor での詳細確認**:
+   ```sql
+   -- テーブル存在確認
+   SELECT table_name FROM information_schema.tables
+   WHERE table_schema = 'public'
+   AND table_name IN ('profiles', 'rooms', 'messages', 'avatar_positions');
+   
+   -- 初期データ確認
+   SELECT id, name, description FROM rooms;
+   
+   -- インデックス確認
+   SELECT indexname, tablename FROM pg_indexes
+   WHERE schemaname = 'public' AND indexname LIKE 'idx_%';
+   ```
 
 ## 成果物
 
