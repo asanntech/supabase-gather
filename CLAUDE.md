@@ -24,6 +24,14 @@
   - 役割: Vitestを使用したテスト戦略の策定・テストコードの実装
   - DDD/クリーンアーキテクチャに適したテスト設計を提供
 
+- `.claude/agents/storybook-ui-catalog.md`
+  - 役割: StorybookによるUIコンポーネントカタログの構築
+  - 基本的なUIカタログとアクセシビリティチェックに集中
+  - 将来的な拡張: プロジェクトの成長に応じて機能追加を検討
+    - インタラクションテスト（Actions addon）
+    - ビジュアルリグレッションテスト（Chromatic）
+    - CI/CD統合
+
 Claude / Claude Code は、**フロントエンド関連の作業をする際に、以下を順番に確認してください：**
 
 1. リポジトリ直下の `CLAUDE.md`（このファイル）
@@ -42,6 +50,7 @@ Claude / Claude Code は、**フロントエンド関連の作業をする際に
 
 - フレームワーク: **Next.js App Router**
 - 言語: **TypeScript**
+- パッケージマネージャー: **pnpm**
 - UI / CSS:
   - **shadcn/ui**
   - Tailwind CSS
