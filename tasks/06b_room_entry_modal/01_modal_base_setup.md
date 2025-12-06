@@ -1,16 +1,19 @@
 # Task: モーダルベース・ダイアログセットアップ
 
 ## 目標
+
 shadcn/ui の Dialog コンポーネントを使用してルーム入室モーダルの基本構造を作成する
 
 ## 実装内容
 
 ### 1. shadcn/ui Dialog コンポーネントの追加
+
 ```bash
 npx shadcn@latest add dialog
 ```
 
 ### 2. メインモーダルコンポーネント作成
+
 **ファイル**: `src/features/room-entry/ui/room-entry-modal.tsx`
 
 ```typescript
@@ -44,6 +47,7 @@ export function RoomEntryModal({ isOpen, onOpenChange }: RoomEntryModalProps) {
 ```
 
 ### 3. 必要なディレクトリ構造作成
+
 ```
 src/features/room-entry/
   ui/
@@ -55,6 +59,7 @@ src/features/room-entry/
 ```
 
 ## 検証項目
+
 - [ ] shadcn/ui Dialog が正常にインストールされている
 - [ ] モーダルが開閉できる
 - [ ] レスポンシブデザインが適用されている
@@ -62,8 +67,10 @@ src/features/room-entry/
 - [ ] オーバーレイクリックでモーダルが閉じる
 
 ## 関連ファイル
+
 - `src/features/room-entry/ui/room-entry-modal.tsx`
 - `components/ui/dialog.tsx` (shadcn/ui)
 
 ## 次のタスク
+
 02_avatar_selector_component.md - アバターセレクターコンポーネントの実装

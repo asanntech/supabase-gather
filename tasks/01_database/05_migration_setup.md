@@ -1,24 +1,31 @@
 # タスク: マイグレーション統合・セットアップ完了
 
 ## 概要
+
 全てのデータベース設定を統合したマイグレーションファイルを作成し、セットアップを完了する。
 
 ## 前提条件
+
 - 全テーブル作成・RLS・インデックス設定内容の確認済み
 
 ## 実装対象
+
 ### 1. 統合マイグレーションファイル作成
+
 全ての設定を1つのマイグレーションファイルに統合
 
 ### 2. セットアップ検証
+
 データベース構造の完全性確認
 
 ### 3. ドキュメント整備
+
 実装済み構造の文書化
 
 ## 統合マイグレーション
 
 ### ファイル: `supabase/migrations/001_initial_schema.sql`
+
 ```sql
 -- ================================
 -- Supabase Gather: 初期スキーマ作成
@@ -116,31 +123,34 @@ CREATE INDEX idx_avatar_positions_updated ON avatar_positions(updated_at DESC);
 ## セットアップ検証
 
 ### 検証スクリプト
+
 ```sql
 -- テーブル存在確認
-SELECT table_name FROM information_schema.tables 
-WHERE table_schema = 'public' 
+SELECT table_name FROM information_schema.tables
+WHERE table_schema = 'public'
 AND table_name IN ('profiles', 'rooms', 'messages', 'avatar_positions');
 
 -- 初期データ確認
 SELECT id, name, description FROM rooms;
 
 -- RLS状態確認
-SELECT schemaname, tablename, rowsecurity 
-FROM pg_tables 
+SELECT schemaname, tablename, rowsecurity
+FROM pg_tables
 WHERE schemaname = 'public' AND rowsecurity = true;
 
 -- インデックス確認
-SELECT indexname, tablename FROM pg_indexes 
+SELECT indexname, tablename FROM pg_indexes
 WHERE schemaname = 'public' AND indexname LIKE 'idx_%';
 ```
 
 ## 成果物
+
 - 統合マイグレーションファイル
 - セットアップ検証スクリプト
 - データベース構造ドキュメント
 
 ## 最終確認項目
+
 - [ ] 全テーブルが作成されている
 - [ ] 外部キー制約が正しく設定されている
 - [ ] RLSが有効になっている
@@ -148,4 +158,5 @@ WHERE schemaname = 'public' AND indexname LIKE 'idx_%';
 - [ ] 初期データが投入されている
 
 ## 次のフェーズへの準備
+
 データベース基盤完了により、認証システム実装の準備が整いました。

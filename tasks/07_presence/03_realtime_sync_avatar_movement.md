@@ -21,7 +21,7 @@ class PresenceService {
 
   async joinRoom(roomId: string, userData: PresenceData): Promise<void> {
     this.channel = supabase.channel(`room:${roomId}`)
-    
+
     await this.channel
       .on('presence', { event: 'sync' }, this.handlePresenceSync)
       .on('presence', { event: 'join' }, this.handleUserJoin)
@@ -34,18 +34,18 @@ class PresenceService {
 
   async updatePosition(x: number, y: number): Promise<void> {
     if (!this.channel) return
-    
+
     const currentPresence = this.channel.presenceState()
     const myClientId = this.channel.socket.ref
-    
+
     if (currentPresence[myClientId]) {
       const updatedData = {
         ...currentPresence[myClientId][0],
         x,
         y,
-        last_seen: new Date().toISOString()
+        last_seen: new Date().toISOString(),
       }
-      
+
       await this.channel.track(updatedData)
     }
   }
@@ -62,30 +62,34 @@ export const useAvatarMovement = (roomId: string) => {
   const presenceService = useRef<PresenceService>(new PresenceService())
 
   // 位置更新（スロットリング付き）
-  const updatePosition = useMemo(() => 
-    throttle(async (x: number, y: number) => {
-      setPosition({ x, y })
-      await presenceService.current.updatePosition(x, y)
-    }, 100), // 100ms間隔でスロットリング
+  const updatePosition = useMemo(
+    () =>
+      throttle(async (x: number, y: number) => {
+        setPosition({ x, y })
+        await presenceService.current.updatePosition(x, y)
+      }, 100), // 100ms間隔でスロットリング
     []
   )
 
   // マウス移動ハンドラー
-  const handleMouseMove = useCallback((event: MouseEvent) => {
-    const canvas = event.currentTarget as HTMLCanvasElement
-    const rect = canvas.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
-    
-    updatePosition(x, y)
-  }, [updatePosition])
+  const handleMouseMove = useCallback(
+    (event: MouseEvent) => {
+      const canvas = event.currentTarget as HTMLCanvasElement
+      const rect = canvas.getBoundingClientRect()
+      const x = event.clientX - rect.left
+      const y = event.clientY - rect.top
+
+      updatePosition(x, y)
+    },
+    [updatePosition]
+  )
 
   return {
     position,
     otherUsers,
     handleMouseMove,
     joinRoom: presenceService.current.joinRoom,
-    leaveRoom: presenceService.current.leaveRoom
+    leaveRoom: presenceService.current.leaveRoom,
   }
 }
 ```
@@ -97,15 +101,18 @@ export const useAvatarMovement = (roomId: string) => {
 const handlePresenceSync = () => {
   const presenceState = channel.presenceState()
   const myClientId = channel.socket.ref
-  
+
   // 他ユーザーの情報を抽出（自分以外）
   const otherUsers = Object.entries(presenceState)
     .filter(([clientId]) => clientId !== myClientId)
-    .reduce((acc, [clientId, presences]) => {
-      acc[clientId] = presences[0] // 最新のPresenceデータを使用
-      return acc
-    }, {} as Record<string, PresenceData>)
-  
+    .reduce(
+      (acc, [clientId, presences]) => {
+        acc[clientId] = presences[0] // 最新のPresenceデータを使用
+        return acc
+      },
+      {} as Record<string, PresenceData>
+    )
+
   setOtherUsers(otherUsers)
   updateAvatarPositions(otherUsers)
 }
@@ -118,7 +125,11 @@ const handleUserJoin = ({ newPresences }: { newPresences: PresenceData[] }) => {
 }
 
 // ユーザー退室処理
-const handleUserLeave = ({ leftPresences }: { leftPresences: PresenceData[] }) => {
+const handleUserLeave = ({
+  leftPresences,
+}: {
+  leftPresences: PresenceData[]
+}) => {
   console.log('ユーザーが退室:', leftPresences)
   // 退室通知UIの表示
   showLeaveNotification(leftPresences[0].display_name)
@@ -132,12 +143,18 @@ const handleUserLeave = ({ leftPresences }: { leftPresences: PresenceData[] }) =
 const updateAvatarPositions = (users: Record<string, PresenceData>) => {
   // キャンバスをクリア
   context.clearRect(0, 0, canvas.width, canvas.height)
-  
+
   // 各ユーザーのアバターを描画
   Object.values(users).forEach(userData => {
-    drawAvatar(context, userData.x, userData.y, userData.avatar_type, userData.display_name)
+    drawAvatar(
+      context,
+      userData.x,
+      userData.y,
+      userData.avatar_type,
+      userData.display_name
+    )
   })
-  
+
   // 自分のアバターも描画
   drawAvatar(context, position.x, position.y, myAvatarType, myDisplayName)
 }

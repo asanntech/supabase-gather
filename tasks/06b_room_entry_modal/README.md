@@ -7,42 +7,49 @@
 以下の順序で実装を進めることを推奨します：
 
 ### 1. [01_modal_base_setup.md](./01_modal_base_setup.md)
+
 - shadcn/ui Dialog コンポーネントのセットアップ
 - モーダルの基本構造作成
 - **所要時間**: 30-45分
 - **依存関係**: なし
 
 ### 2. [02_avatar_selector_component.md](./02_avatar_selector_component.md)
+
 - アバターセレクターコンポーネント実装
 - 5色のSVGアバター表示・選択機能
 - **所要時間**: 60-90分
 - **依存関係**: 01完了後
 
 ### 3. [03_room_status_monitoring.md](./03_room_status_monitoring.md)
+
 - Supabase Presence チャンネルによるルーム監視
 - リアルタイム人数表示・状態管理
 - **所要時間**: 90-120分
 - **依存関係**: 01完了後
 
 ### 4. [04_form_input_validation.md](./04_form_input_validation.md)
+
 - 表示名入力フォーム・バリデーション機能
 - Google/ゲストユーザー対応
 - **所要時間**: 75-90分
 - **依存関係**: 01完了後
 
 ### 5. [05_business_logic_state_management.md](./05_business_logic_state_management.md)
+
 - 入室・キャンセル処理のビジネスロジック
 - 統合状態管理・ルート遷移
 - **所要時間**: 120-150分
 - **依存関係**: 02, 03, 04完了後
 
 ### 6. [06_error_handling.md](./06_error_handling.md)
+
 - 包括的なエラーハンドリング
 - 自動復旧・再試行機能
 - **所要時間**: 90-120分
 - **依存関係**: 05完了後
 
 ### 7. [07_figma_design_implementation.md](./07_figma_design_implementation.md)
+
 - Figmaデザイン完全実装
 - レスポンシブ対応・アクセシビリティ
 - **所要時間**: 120-180分

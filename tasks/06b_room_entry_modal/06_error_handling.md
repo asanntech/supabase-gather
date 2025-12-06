@@ -1,11 +1,13 @@
 # Task: エラーハンドリングと自動復旧機能実装
 
 ## 目標
+
 包括的なエラーハンドリング、自動復旧機能、ユーザーフレンドリーなエラー表示を実装する
 
 ## 実装内容
 
 ### 1. エラータイプ定義
+
 **ファイル**: `src/features/room-entry/types/errors.ts`
 
 ```typescript
@@ -17,7 +19,7 @@ export enum RoomEntryErrorType {
   AUTH_ERROR = 'AUTH_ERROR',
   PROFILE_UPDATE_ERROR = 'PROFILE_UPDATE_ERROR',
   PRESENCE_ERROR = 'PRESENCE_ERROR',
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR'
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }
 
 export interface RoomEntryError {
@@ -29,47 +31,56 @@ export interface RoomEntryError {
   originalError?: Error
 }
 
-export const ERROR_CONFIGS: Record<RoomEntryErrorType, Partial<RoomEntryError>> = {
+export const ERROR_CONFIGS: Record<
+  RoomEntryErrorType,
+  Partial<RoomEntryError>
+> = {
   [RoomEntryErrorType.VALIDATION_ERROR]: {
     canRetry: false,
-    userMessage: '入力内容に問題があります。修正してから再試行してください'
+    userMessage: '入力内容に問題があります。修正してから再試行してください',
   },
   [RoomEntryErrorType.ROOM_FULL]: {
     canRetry: true,
-    userMessage: 'ルームが満員です。しばらくお待ちください'
+    userMessage: 'ルームが満員です。しばらくお待ちください',
   },
   [RoomEntryErrorType.CONNECTION_ERROR]: {
     canRetry: true,
-    userMessage: 'ルームに接続できません。しばらくしてから再試行してください'
+    userMessage: 'ルームに接続できません。しばらくしてから再試行してください',
   },
   [RoomEntryErrorType.TIMEOUT_ERROR]: {
     canRetry: true,
-    userMessage: '接続がタイムアウトしました。ネットワーク接続を確認してください'
+    userMessage:
+      '接続がタイムアウトしました。ネットワーク接続を確認してください',
   },
   [RoomEntryErrorType.AUTH_ERROR]: {
     canRetry: false,
-    userMessage: '認証に問題が発生しました。再度ログインしてください'
+    userMessage: '認証に問題が発生しました。再度ログインしてください',
   },
   [RoomEntryErrorType.PROFILE_UPDATE_ERROR]: {
     canRetry: true,
-    userMessage: 'プロフィールの更新に失敗しましたが、入室は可能です'
+    userMessage: 'プロフィールの更新に失敗しましたが、入室は可能です',
   },
   [RoomEntryErrorType.PRESENCE_ERROR]: {
     canRetry: true,
-    userMessage: 'ルーム状態の確認でエラーが発生しました'
+    userMessage: 'ルーム状態の確認でエラーが発生しました',
   },
   [RoomEntryErrorType.UNKNOWN_ERROR]: {
     canRetry: true,
-    userMessage: '予期しないエラーが発生しました。再試行してください'
-  }
+    userMessage: '予期しないエラーが発生しました。再試行してください',
+  },
 }
 ```
 
 ### 2. エラーハンドリングサービス
+
 **ファイル**: `src/features/room-entry/services/error-handler-service.ts`
 
 ```typescript
-import { RoomEntryError, RoomEntryErrorType, ERROR_CONFIGS } from '../types/errors'
+import {
+  RoomEntryError,
+  RoomEntryErrorType,
+  ERROR_CONFIGS,
+} from '../types/errors'
 
 export class ErrorHandlerService {
   private maxRetryAttempts = 3
@@ -81,14 +92,14 @@ export class ErrorHandlerService {
     originalError?: Error
   ): RoomEntryError {
     const config = ERROR_CONFIGS[type]
-    
+
     return {
       type,
       message,
       userMessage: config.userMessage || message,
       canRetry: config.canRetry || false,
       autoRetryCount: 0,
-      originalError
+      originalError,
     }
   }
 
@@ -117,11 +128,13 @@ export class ErrorHandlerService {
           `${operationName}でエラーが発生しました: ${error}`,
           error instanceof Error ? error : undefined
         )
-        
+
         lastError.autoRetryCount = retryCount
 
         if (retryCount < this.maxRetryAttempts && lastError.canRetry) {
-          console.warn(`Retrying ${operationName} (attempt ${retryCount + 1}/${this.maxRetryAttempts})`)
+          console.warn(
+            `Retrying ${operationName} (attempt ${retryCount + 1}/${this.maxRetryAttempts})`
+          )
           await this.delay(this.retryDelay * Math.pow(2, retryCount)) // 指数バックオフ
           retryCount++
           continue
@@ -146,11 +159,14 @@ export class ErrorHandlerService {
       userMessage: error.userMessage,
       retryCount: error.autoRetryCount,
       context,
-      originalError: error.originalError
+      originalError: error.originalError,
     })
 
     // 本番環境では外部サービス（Sentry等）にも送信
-    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    if (
+      typeof window !== 'undefined' &&
+      window.location.hostname !== 'localhost'
+    ) {
       // TODO: 外部エラートラッキングサービス統合
     }
   }
@@ -158,6 +174,7 @@ export class ErrorHandlerService {
 ```
 
 ### 3. エラー表示コンポーネント
+
 **ファイル**: `src/features/room-entry/ui/error-display.tsx`
 
 ```typescript
@@ -215,11 +232,11 @@ export function ErrorDisplay({
       ) : (
         getErrorIcon()
       )}
-      
+
       <AlertDescription className="space-y-3">
         <div className="space-y-1">
           <p className="font-medium">{error.userMessage}</p>
-          
+
           {error.autoRetryCount && error.autoRetryCount > 0 && (
             <p className="text-xs text-gray-600">
               自動再試行: {error.autoRetryCount} / 3 回
@@ -250,7 +267,7 @@ export function ErrorDisplay({
                 )}
               </Button>
             )}
-            
+
             {onDismiss && (
               <Button
                 size="sm"
@@ -271,10 +288,11 @@ export function ErrorDisplay({
 ```
 
 ### 4. 自動復旧監視フック
+
 **ファイル**: `src/features/room-entry/hooks/use-auto-recovery.ts`
 
 ```typescript
-"use client"
+'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { ErrorHandlerService } from '../services/error-handler-service'
@@ -290,7 +308,7 @@ export function useAutoRecovery() {
   const [state, setState] = useState<AutoRecoveryState>({
     isMonitoring: false,
     recoveryAttempts: 0,
-    lastRecoveryTime: null
+    lastRecoveryTime: null,
   })
 
   const errorHandler = new ErrorHandlerService()
@@ -330,38 +348,39 @@ export function useAutoRecovery() {
     }
   }, [])
 
-  const attemptAutoRecovery = useCallback(async (
-    error: RoomEntryError,
-    recoveryAction: () => Promise<void>
-  ) => {
-    if (!errorHandler.shouldAutoRetry(error)) {
-      return false
-    }
+  const attemptAutoRecovery = useCallback(
+    async (error: RoomEntryError, recoveryAction: () => Promise<void>) => {
+      if (!errorHandler.shouldAutoRetry(error)) {
+        return false
+      }
 
-    try {
-      setState(prev => ({
-        ...prev,
-        recoveryAttempts: prev.recoveryAttempts + 1,
-        lastRecoveryTime: new Date()
-      }))
+      try {
+        setState(prev => ({
+          ...prev,
+          recoveryAttempts: prev.recoveryAttempts + 1,
+          lastRecoveryTime: new Date(),
+        }))
 
-      await recoveryAction()
-      return true
-    } catch (recoveryError) {
-      console.error('Auto recovery failed:', recoveryError)
-      return false
-    }
-  }, [errorHandler])
+        await recoveryAction()
+        return true
+      } catch (recoveryError) {
+        console.error('Auto recovery failed:', recoveryError)
+        return false
+      }
+    },
+    [errorHandler]
+  )
 
   return {
     state,
     startRoomMonitoring,
-    attemptAutoRecovery
+    attemptAutoRecovery,
   }
 }
 ```
 
 ## 検証項目
+
 - [ ] 各エラータイプに対して適切なメッセージが表示される
 - [ ] 自動再試行が正しい回数と間隔で実行される
 - [ ] 満員状態の自動監視が機能する
@@ -371,10 +390,12 @@ export function useAutoRecovery() {
 - [ ] 復旧不可能なエラーでは再試行ボタンが無効化される
 
 ## 関連ファイル
+
 - `src/features/room-entry/types/errors.ts`
 - `src/features/room-entry/services/error-handler-service.ts`
 - `src/features/room-entry/ui/error-display.tsx`
 - `src/features/room-entry/hooks/use-auto-recovery.ts`
 
 ## 次のタスク
+
 07_figma_design_implementation.md - Figmaデザイン完全実装

@@ -21,28 +21,28 @@ class CapacityService {
 
   async checkRoomCapacity(roomId: string): Promise<RoomCapacityResult> {
     const channel = supabase.channel(`room:${roomId}`)
-    
+
     // Presenceに接続
     await channel.subscribe()
-    
+
     // 現在の接続数取得
     const presenceState = channel.presenceState()
     const currentUsers = Object.keys(presenceState).length
-    
+
     // 入室可否判定
     if (currentUsers >= this.MAX_CAPACITY) {
-      return { 
-        canEnter: false, 
+      return {
+        canEnter: false,
         currentUsers,
         maxCapacity: this.MAX_CAPACITY,
-        message: `満員です（${currentUsers}/${this.MAX_CAPACITY}）` 
+        message: `満員です（${currentUsers}/${this.MAX_CAPACITY}）`,
       }
     }
 
-    return { 
-      canEnter: true, 
+    return {
+      canEnter: true,
       currentUsers,
-      maxCapacity: this.MAX_CAPACITY 
+      maxCapacity: this.MAX_CAPACITY,
     }
   }
 }
@@ -53,9 +53,10 @@ class CapacityService {
 ```typescript
 // useRoomCapacity.ts
 export const useRoomCapacity = (roomId: string) => {
-  const [capacityResult, setCapacityResult] = useState<RoomCapacityResult | null>(null)
+  const [capacityResult, setCapacityResult] =
+    useState<RoomCapacityResult | null>(null)
   const [isChecking, setIsChecking] = useState(false)
-  
+
   const checkCapacity = useCallback(async () => {
     setIsChecking(true)
     try {
@@ -72,7 +73,7 @@ export const useRoomCapacity = (roomId: string) => {
     capacityResult,
     isChecking,
     checkCapacity,
-    canEnter: capacityResult?.canEnter ?? false
+    canEnter: capacityResult?.canEnter ?? false,
   }
 }
 ```
@@ -85,19 +86,18 @@ export const useRoomCapacity = (roomId: string) => {
 
 ```typescript
 // リアルタイム監視の実装例
-channel
-  .on('presence', { event: 'sync' }, () => {
-    const presenceState = channel.presenceState()
-    const currentUsers = Object.keys(presenceState).length
-    
-    // UI更新：人数表示の更新
-    updateUserCount(currentUsers)
-    
-    // 満員状態の解除判定
-    if (currentUsers < MAX_CAPACITY && wasFullBefore) {
-      setRoomStatus('available')
-    }
-  })
+channel.on('presence', { event: 'sync' }, () => {
+  const presenceState = channel.presenceState()
+  const currentUsers = Object.keys(presenceState).length
+
+  // UI更新：人数表示の更新
+  updateUserCount(currentUsers)
+
+  // 満員状態の解除判定
+  if (currentUsers < MAX_CAPACITY && wasFullBefore) {
+    setRoomStatus('available')
+  }
+})
 ```
 
 ## 実装手順

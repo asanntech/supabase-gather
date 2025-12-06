@@ -125,8 +125,8 @@ export const JoinLeaveNotification: React.FC<NotificationProps> = ({
             transition={{ duration: 0.3 }}
             className={cn(
               "flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border",
-              notification.type === 'join' 
-                ? "bg-green-50 border-green-200" 
+              notification.type === 'join'
+                ? "bg-green-50 border-green-200"
                 : "bg-orange-50 border-orange-200"
             )}
           >
@@ -238,7 +238,7 @@ export const OnlineUsersList: React.FC<OnlineUsersListProps> = ({
           {userList.length}
         </Badge>
       </div>
-      
+
       <div className="space-y-2 max-h-40 overflow-y-auto">
         {userList.map(user => (
           <div
@@ -277,31 +277,33 @@ export const OnlineUsersList: React.FC<OnlineUsersListProps> = ({
 ```typescript
 // useNotifications.ts
 export const useNotifications = () => {
-  const [notifications, setNotifications] = useState<Array<{
-    id: string
-    type: 'join' | 'leave'
-    displayName: string
-    timestamp: Date
-  }>>([])
+  const [notifications, setNotifications] = useState<
+    Array<{
+      id: string
+      type: 'join' | 'leave'
+      displayName: string
+      timestamp: Date
+    }>
+  >([])
 
-  const addNotification = useCallback((
-    type: 'join' | 'leave',
-    displayName: string
-  ) => {
-    const notification = {
-      id: `${type}_${Date.now()}_${Math.random()}`,
-      type,
-      displayName,
-      timestamp: new Date()
-    }
+  const addNotification = useCallback(
+    (type: 'join' | 'leave', displayName: string) => {
+      const notification = {
+        id: `${type}_${Date.now()}_${Math.random()}`,
+        type,
+        displayName,
+        timestamp: new Date(),
+      }
 
-    setNotifications(prev => [...prev, notification])
+      setNotifications(prev => [...prev, notification])
 
-    // 5秒後に自動削除
-    setTimeout(() => {
-      dismissNotification(notification.id)
-    }, 5000)
-  }, [])
+      // 5秒後に自動削除
+      setTimeout(() => {
+        dismissNotification(notification.id)
+      }, 5000)
+    },
+    []
+  )
 
   const dismissNotification = useCallback((id: string) => {
     setNotifications(prev => prev.filter(n => n.id !== id))
@@ -310,7 +312,7 @@ export const useNotifications = () => {
   return {
     notifications,
     addNotification,
-    dismissNotification
+    dismissNotification,
   }
 }
 ```
@@ -325,13 +327,13 @@ const presenceAnimations = {
   fadeIn: {
     initial: { opacity: 0, y: -10 },
     animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -10 }
+    exit: { opacity: 0, y: -10 },
   },
   slideIn: {
     initial: { opacity: 0, x: 100 },
     animate: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: 100 }
-  }
+    exit: { opacity: 0, x: 100 },
+  },
 }
 ```
 
@@ -340,9 +342,9 @@ const presenceAnimations = {
 ```typescript
 // モバイル対応
 const responsiveClasses = {
-  userCount: "text-sm md:text-base",
-  notification: "mx-2 md:mx-0 w-full md:w-auto",
-  usersList: "hidden md:block lg:w-64"
+  userCount: 'text-sm md:text-base',
+  notification: 'mx-2 md:mx-0 w-full md:w-auto',
+  usersList: 'hidden md:block lg:w-64',
 }
 ```
 

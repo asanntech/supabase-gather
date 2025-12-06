@@ -9,6 +9,7 @@ Presence チャンネルを使用したルーム接続管理機能を実装す�
 ### 1. ルーム状態管理
 
 `src/features/room/application/hooks/use-room.ts`
+
 ```typescript
 type RoomState = {
   roomId: string
@@ -16,7 +17,7 @@ type RoomState = {
   participants: Participant[]
   currentUser: {
     clientId: string
-    position: { x: number, y: number }
+    position: { x: number; y: number }
     displayName: string
     avatarType: AvatarType
   }
@@ -41,6 +42,7 @@ type RoomState = {
 ### 4. 接続状態表示
 
 `src/features/room/ui/room-header.tsx`
+
 - 接続状態インジケーター
 - 参加人数の表示
 - ルーム名の表示

@@ -1,25 +1,32 @@
 # タスク: 動的ルーティング実装
 
 ## 概要
+
 Next.js App Routerの動的ルーティング機能を使用して、ルーム機能の柔軟なURL構造を実装する。
 
 ## 前提条件
+
 - ミドルウェア・認証ガードが実装済み
 - ナビゲーションシステムが実装済み
 
 ## 実装対象
+
 ### 1. 動的ルートページ
+
 ルームIDに基づく動的ページ生成
 
 ### 2. パラメータ検証
+
 URLパラメータの妥当性確認
 
 ### 3. エラーハンドリング
+
 無効なルートでの適切な処理
 
 ## 詳細仕様
 
 ### 動的ルートページ実装
+
 ```typescript
 // app/room/[room_id]/page.tsx
 import { notFound } from 'next/navigation';
@@ -39,10 +46,10 @@ interface RoomPageProps {
 function validateRoomId(roomId: string): boolean {
   // MVP段階: main-roomのみ許可
   const allowedRooms = ['main-room'];
-  
+
   // 将来の拡張: UUID形式 or 英数字+ハイフン
   const roomIdPattern = /^[a-zA-Z0-9-_]+$/;
-  
+
   return allowedRooms.includes(roomId) || roomIdPattern.test(roomId);
 }
 
@@ -50,11 +57,11 @@ function validateRoomId(roomId: string): boolean {
 async function checkRoomExists(roomId: string): Promise<boolean> {
   // MVP段階: main-roomのみ存在
   if (roomId === 'main-room') return true;
-  
+
   // 将来: データベースでルーム存在確認
   // const room = await getRoomById(roomId);
   // return !!room;
-  
+
   return false;
 }
 
@@ -62,7 +69,7 @@ export async function generateMetadata(
   { params }: RoomPageProps
 ): Promise<Metadata> {
   const { room_id } = params;
-  
+
   // ルーム名の取得（将来拡張用）
   const getRoomName = (roomId: string) => {
     if (roomId === 'main-room') return 'メインルーム';
@@ -115,6 +122,7 @@ export function generateStaticParams() {
 ```
 
 ### クライアントサイドルーム検証
+
 ```typescript
 // app/room/[room_id]/RoomPageClient.tsx
 'use client';
@@ -261,11 +269,11 @@ export default function RoomPageClient({ roomId, initialQuery }: RoomPageClientP
 async function checkRoomExistence(roomId: string): Promise<boolean> {
   // MVP: main-roomのみ存在
   if (roomId === 'main-room') return true;
-  
+
   // 将来: API呼び出し
   // const response = await fetch(`/api/rooms/${roomId}`);
   // return response.ok;
-  
+
   return false;
 }
 
@@ -283,11 +291,11 @@ interface RoomCapacityInfo {
 async function checkRoomCapacity(roomId: string): Promise<RoomCapacityInfo> {
   // MVP: 5人制限
   const maxCapacity = 5;
-  
+
   // TODO: Presence APIでの現在の接続数確認
   // const currentCount = await getCurrentRoomCount(roomId);
   const currentCount = 0; // 暫定
-  
+
   return {
     available: currentCount < maxCapacity,
     current: currentCount,
@@ -297,6 +305,7 @@ async function checkRoomCapacity(roomId: string): Promise<RoomCapacityInfo> {
 ```
 
 ### 404エラーページ
+
 ```typescript
 // app/room/[room_id]/not-found.tsx
 import Link from 'next/link';
@@ -334,59 +343,66 @@ export default function RoomNotFound() {
 ```
 
 ### ルーティングユーティリティ拡張
+
 ```typescript
 // src/shared/utils/routing.ts
 export const ROOM_PATTERNS = {
   MAIN_ROOM: 'main-room',
   ROOM_ID_REGEX: /^[a-zA-Z0-9-_]{1,50}$/,
-} as const;
+} as const
 
 export function parseRoomRoute(pathname: string) {
-  const match = pathname.match(/^\/room\/([^\/]+)$/);
-  if (!match) return null;
+  const match = pathname.match(/^\/room\/([^\/]+)$/)
+  if (!match) return null
 
-  const roomId = match[1];
+  const roomId = match[1]
   return {
     roomId,
     isMainRoom: roomId === ROOM_PATTERNS.MAIN_ROOM,
     isValid: validateRoomId(roomId),
-  };
+  }
 }
 
 export function validateRoomId(roomId: string): boolean {
-  if (!roomId || roomId.length === 0) return false;
-  if (roomId === ROOM_PATTERNS.MAIN_ROOM) return true;
-  return ROOM_PATTERNS.ROOM_ID_REGEX.test(roomId);
+  if (!roomId || roomId.length === 0) return false
+  if (roomId === ROOM_PATTERNS.MAIN_ROOM) return true
+  return ROOM_PATTERNS.ROOM_ID_REGEX.test(roomId)
 }
 
-export function buildRoomUrl(roomId: string, params?: Record<string, string>): string {
-  let url = `/room/${roomId}`;
-  
+export function buildRoomUrl(
+  roomId: string,
+  params?: Record<string, string>
+): string {
+  let url = `/room/${roomId}`
+
   if (params && Object.keys(params).length > 0) {
-    const searchParams = new URLSearchParams(params);
-    url += `?${searchParams.toString()}`;
+    const searchParams = new URLSearchParams(params)
+    url += `?${searchParams.toString()}`
   }
-  
-  return url;
+
+  return url
 }
 
 // URL生成ヘルパー
 export const roomUrls = {
   main: () => buildRoomUrl('main-room'),
   byId: (roomId: string) => buildRoomUrl(roomId),
-  withReturn: (roomId: string, returnTo: string) => 
+  withReturn: (roomId: string, returnTo: string) =>
     buildRoomUrl(roomId, { returnTo }),
-};
+}
 ```
 
 ## 成果物
+
 - 動的ルートページ実装
 - ルームパラメータ検証機能
 - エラーページ・状態処理
 - ルーティングユーティリティ拡張
 
 ## 検証方法
+
 ### テストケース
+
 1. **有効なルーム**
    - `/room/main-room` への正常アクセス
    - メタデータの正確な生成
@@ -400,14 +416,17 @@ export const roomUrls = {
    - 定員超過時の適切なエラー表示
 
 ## SEO・メタデータ対応
+
 - 動的なページタイトル・説明文
 - Open Graphメタデータ
 - 検索エンジン最適化
 
 ## パフォーマンス考慮
+
 - 静的パラメータ生成（MVP段階）
 - クライアントサイド検証の最適化
 - 不要な再検証の回避
 
 ## 次のタスクへの準備
+
 動的ルーティング基盤完了により、ルーティング統合テスト準備完了

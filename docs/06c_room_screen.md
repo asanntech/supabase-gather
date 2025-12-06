@@ -51,11 +51,13 @@
 #### 移動操作
 
 **マウス操作**
+
 - クリックした位置にアバターが移動
 - スムーズなアニメーション付き移動
 - 境界判定（スペース外に出ない）
 
 **キーボード操作**
+
 - WASD キーでの移動
 - 矢印キーでの移動
 - 連続移動対応
@@ -91,7 +93,7 @@ type ChatMessage = {
   id: string
   room_id: string
   user_type: 'google' | 'guest'
-  user_id: string | null  // ゲストはnull
+  user_id: string | null // ゲストはnull
   display_name: string
   avatar_type: AvatarType
   content: string
@@ -124,16 +126,19 @@ https://www.figma.com/design/vES3VewH8Qo1MA0Au0oujK/Supabase-Gather?node-id=23-1
 ### レスポンシブ対応
 
 **デスクトップ（1200px以上）**
+
 - 左右分割レイアウト
 - 2Dスペース: 800x600px
 - チャット: 400px幅
 
 **タブレット（768px-1199px）**
+
 - 左右分割維持
 - 2Dスペース縮小
 - チャット幅調整
 
 **モバイル（767px以下）**
+
 - 上下分割レイアウト
 - 2Dスペース上部配置
 - チャット下部配置
@@ -206,7 +211,7 @@ type RoomState = {
   participants: Participant[]
   currentUser: {
     clientId: string
-    position: { x: number, y: number }
+    position: { x: number; y: number }
     displayName: string
     avatarType: AvatarType
   }
@@ -252,9 +257,10 @@ const presenceChannel = supabase
 // チャットメッセージ同期
 const messageChannel = supabase
   .channel(`messages:${roomId}`)
-  .on('postgres_changes', 
+  .on(
+    'postgres_changes',
     { event: 'INSERT', schema: 'public', table: 'messages' },
-    (payload) => {
+    payload => {
       // 新規メッセージ受信
     }
   )

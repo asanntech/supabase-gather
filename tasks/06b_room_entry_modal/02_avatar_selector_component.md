@@ -1,15 +1,23 @@
 # Task: アバターセレクターコンポーネント実装
 
 ## 目標
+
 5色のSVGアバターを選択できるコンポーネントを作成し、選択状態とプレビュー表示を実装する
 
 ## 実装内容
 
 ### 1. アバタータイプ定義
+
 **ファイル**: `src/features/avatar/types/avatar.ts`
 
 ```typescript
-export const AVATAR_COLORS = ['blue', 'purple', 'cyan', 'indigo', 'green'] as const
+export const AVATAR_COLORS = [
+  'blue',
+  'purple',
+  'cyan',
+  'indigo',
+  'green',
+] as const
 export type AvatarType = (typeof AVATAR_COLORS)[number]
 
 export interface AvatarConfig {
@@ -23,11 +31,12 @@ export const AVATAR_CONFIGS: Record<AvatarType, AvatarConfig> = {
   purple: { color: 'purple', bgColor: '#8B5CF6', accentColor: '#7C3AED' },
   cyan: { color: 'cyan', bgColor: '#06B6D4', accentColor: '#0891B2' },
   indigo: { color: 'indigo', bgColor: '#6366F1', accentColor: '#4F46E5' },
-  green: { color: 'green', bgColor: '#10B981', accentColor: '#059669' }
+  green: { color: 'green', bgColor: '#10B981', accentColor: '#059669' },
 }
 ```
 
 ### 2. アバターアイコンコンポーネント
+
 **ファイル**: `src/features/avatar/ui/avatar-icon.tsx`
 
 ```typescript
@@ -64,6 +73,7 @@ export function AvatarIcon({ config, size = 'md', className = '' }: AvatarIconPr
 ```
 
 ### 3. アバターセレクターコンポーネント
+
 **ファイル**: `src/features/avatar/ui/avatar-selector.tsx`
 
 ```typescript
@@ -130,10 +140,11 @@ export function AvatarSelector({
 ```
 
 ### 4. アバター管理フック
+
 **ファイル**: `src/features/avatar/hooks/use-avatar.ts`
 
 ```typescript
-"use client"
+'use client'
 
 import { useState, useCallback } from 'react'
 import { AvatarType } from '../types/avatar'
@@ -145,7 +156,8 @@ interface UseAvatarReturn {
 }
 
 export function useAvatar(initialAvatar: AvatarType = 'blue'): UseAvatarReturn {
-  const [selectedAvatar, setSelectedAvatar] = useState<AvatarType>(initialAvatar)
+  const [selectedAvatar, setSelectedAvatar] =
+    useState<AvatarType>(initialAvatar)
 
   const resetAvatar = useCallback(() => {
     setSelectedAvatar('blue')
@@ -154,12 +166,13 @@ export function useAvatar(initialAvatar: AvatarType = 'blue'): UseAvatarReturn {
   return {
     selectedAvatar,
     setSelectedAvatar,
-    resetAvatar
+    resetAvatar,
   }
 }
 ```
 
 ## 検証項目
+
 - [ ] 5色のアバターが正常に表示される
 - [ ] クリックで選択状態が変わる
 - [ ] 選択されたアバターがハイライトされる
@@ -168,10 +181,12 @@ export function useAvatar(initialAvatar: AvatarType = 'blue'): UseAvatarReturn {
 - [ ] キーボードナビゲーションが機能する
 
 ## 関連ファイル
+
 - `src/features/avatar/types/avatar.ts`
 - `src/features/avatar/ui/avatar-icon.tsx`
 - `src/features/avatar/ui/avatar-selector.tsx`
 - `src/features/avatar/hooks/use-avatar.ts`
 
 ## 次のタスク
+
 03_room_status_monitoring.md - ルーム状態監視機能の実装

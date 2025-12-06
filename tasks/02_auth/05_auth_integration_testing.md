@@ -1,26 +1,33 @@
 # タスク: 認証システム統合・テスト
 
 ## 概要
+
 認証システム全体の統合とエンドツーエンドテストを実施し、認証フローの完全性を確認する。
 
 ## 前提条件
+
 - DDD/Clean Architecture基盤が構築済み
 - Google・ゲスト認証システムが実装済み
 - 認証コンテキスト・Hooksが実装済み
 
 ## 実装対象
+
 ### 1. 認証システム統合
+
 全認証コンポーネントの結合と動作確認
 
 ### 2. エンドツーエンドテスト
+
 実際のユーザーフローでのテスト
 
 ### 3. エラーハンドリング
+
 認証エラーの適切な処理とユーザーフィードバック
 
 ## 詳細仕様
 
 ### App Router統合
+
 ```typescript
 // src/app/layout.tsx
 import { AuthProvider } from '@/features/auth/presentation/hooks/AuthContext';
@@ -45,46 +52,50 @@ export default function RootLayout({
 ```
 
 ### 認証ミドルウェア
+
 ```typescript
 // src/middleware.ts
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
-  const supabase = createMiddlewareClient({ req, res });
+  const res = NextResponse.next()
+  const supabase = createMiddlewareClient({ req, res })
 
   // 保護されたルートの定義
-  const protectedRoutes = ['/room'];
-  const isProtectedRoute = protectedRoutes.some(route => 
+  const protectedRoutes = ['/room']
+  const isProtectedRoute = protectedRoutes.some(route =>
     req.nextUrl.pathname.startsWith(route)
-  );
+  )
 
   if (isProtectedRoute) {
     // Supabase Auth状態確認（Googleユーザー用）
-    const { data: { session } } = await supabase.auth.getSession();
-    
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+
     // ゲスト認証はクライアントサイドでチェック（サーバーサイドでは確認不可）
     if (!session) {
       // 未認証の場合、認証ページにリダイレクト
-      const redirectUrl = req.nextUrl.clone();
-      redirectUrl.pathname = '/';
-      redirectUrl.searchParams.set('returnTo', req.nextUrl.pathname);
-      
-      return NextResponse.redirect(redirectUrl);
+      const redirectUrl = req.nextUrl.clone()
+      redirectUrl.pathname = '/'
+      redirectUrl.searchParams.set('returnTo', req.nextUrl.pathname)
+
+      return NextResponse.redirect(redirectUrl)
     }
   }
 
-  return res;
+  return res
 }
 
 export const config = {
-  matcher: ['/room/:path*']
-};
+  matcher: ['/room/:path*'],
+}
 ```
 
 ### エラーバウンダリー
+
 ```typescript
 // src/features/auth/presentation/components/AuthErrorBoundary.tsx
 interface AuthErrorBoundaryState {
@@ -107,7 +118,7 @@ export class AuthErrorBoundary extends Component<
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('認証エラー:', error, errorInfo);
-    
+
     // エラー監視サービスに送信（例：Sentry）
     // sendToErrorMonitoring(error, errorInfo);
   }
@@ -138,6 +149,7 @@ export class AuthErrorBoundary extends Component<
 ```
 
 ### 認証フロー テストスイート
+
 ```typescript
 // __tests__/auth/auth-flow.test.tsx
 describe('認証フロー統合テスト', () => {
@@ -187,7 +199,7 @@ describe('認証フロー統合テスト', () => {
       // ゲスト情報入力
       const nameInput = screen.getByLabelText(/表示名/i);
       const avatarSelect = screen.getByLabelText(/アバター/i);
-      
+
       fireEvent.change(nameInput, { target: { value: 'テストゲスト' } });
       fireEvent.change(avatarSelect, { target: { value: 'blue' } });
 
@@ -255,65 +267,73 @@ describe('認証フロー統合テスト', () => {
 ```
 
 ### パフォーマンステスト
+
 ```typescript
 // __tests__/auth/auth-performance.test.tsx
 describe('認証システム パフォーマンステスト', () => {
   it('認証状態の初期化が高速である（< 1秒）', async () => {
     const startTime = performance.now();
-    
+
     render(<AuthProvider><TestComponent /></AuthProvider>);
-    
+
     await waitFor(() => {
       const { loading } = renderHook(() => useAuth()).result.current;
       expect(loading).toBe(false);
     });
-    
+
     const endTime = performance.now();
     expect(endTime - startTime).toBeLessThan(1000);
   });
 
   it('大量の認証状態変更に耐えられる', async () => {
     const authService = new AuthService(/* 依存注入 */);
-    
+
     const promises = Array.from({ length: 100 }, async (_, i) => {
       await authService.signInAsGuest(`ゲスト${i}`, 'blue');
       await authService.signOut();
     });
-    
+
     await expect(Promise.all(promises)).resolves.not.toThrow();
   });
 });
 ```
 
 ## 成果物
+
 - 認証システム統合確認
 - エンドツーエンドテスト
 - エラーハンドリング機能
 - パフォーマンステスト
 
 ## 検証項目
+
 ### 機能テスト
+
 - [ ] Google認証ログイン・ログアウト
 - [ ] ゲスト認証ログイン・セッション管理
 - [ ] プロフィール更新（Google用）
 - [ ] 認証ガードによるリダイレクト
 - [ ] エラー状態の適切な表示
 
-### 非機能テスト  
+### 非機能テスト
+
 - [ ] 認証状態初期化のパフォーマンス
 - [ ] メモリリークの確認
 - [ ] セキュリティ（XSS、CSRF対策）
 
 ### ユーザビリティテスト
+
 - [ ] 認証フローの直感性
 - [ ] エラーメッセージの分かりやすさ
 - [ ] ローディング状態の適切な表示
 
 ## 本番環境準備
+
 - Supabase本番環境設定
 - Google OAuth2.0本番クライアント設定
 - 環境変数の適切な設定
 - エラー監視（Sentry等）の設定
 
 ## 次のフェーズへの準備
+
 認証システム完了により、ルーティング基盤実装の準備が整いました。
