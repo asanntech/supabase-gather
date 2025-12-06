@@ -78,9 +78,24 @@ WHERE room_id = '[room-uuid]';
 
 ## 検証方法
 
-- インデックス確認: `\di` でインデックス一覧表示
-- パフォーマンス測定: `EXPLAIN ANALYZE` での実行時間確認
-- 想定クエリの実行テスト
+### Supabase Studio経由で確認
+
+1. Supabase Studio にアクセス: http://127.0.0.1:54323
+2. 左メニューから「SQL Editor」を選択
+3. 以下のクエリでインデックス一覧を確認:
+   ```sql
+   SELECT 
+     schemaname,
+     tablename,
+     indexname,
+     indexdef
+   FROM pg_indexes
+   WHERE schemaname = 'public'
+   ORDER BY tablename, indexname;
+   ```
+4. パフォーマンステストの実行:
+   - SQL Editor で `EXPLAIN ANALYZE` を付けたクエリを実行
+   - 実行計画と実行時間を確認
 
 ## 将来の最適化ポイント
 
