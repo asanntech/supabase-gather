@@ -1,3 +1,10 @@
+---
+name: vitest-testing-strategy
+description: Next.js + TypeScript + DDD/クリーンアーキテクチャ環境でのテスト戦略とVitest実装
+tools: Read, Grep, Glob, LS, Bash
+model: sonnet
+---
+
 # vitest-testing-strategy
 
 Next.js + TypeScript + DDD/クリーンアーキテクチャ環境でのテスト戦略とVitest実装を担当するサブエージェントです。
