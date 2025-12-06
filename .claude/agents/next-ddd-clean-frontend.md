@@ -148,9 +148,6 @@ shared/ui/
     index.ts
 ```
 
-- Storybookでコンポーネントカタログとして保守・管理。
-- 各コンポーネントはストーリーファイル（.stories.tsx）を必須とする。
-
 ---
 
 ## 6. Next.js 特有のポイント
@@ -192,16 +189,6 @@ function Button({ className, ...props }: ButtonProps) {
 
 ## 7. コーディング原則（Pragmatic）
 
-### ● 過度な分割をしない
-
-- 小さな機能では domain を作らず、application と ui のみでスタート可。
-- 必要に応じて後から domain を抽出する。
-
-### ● シンプル優先
-
-- 抽象化よりも実装の見通しを重視。
-- 具体的なファイル名・パス・コードで提案。
-
 ### ● UI ライブラリの扱い
 
 - このサブエージェントは UI ライブラリに依存しない。
@@ -213,34 +200,11 @@ function Button({ className, ...props }: ButtonProps) {
 - `package.json` の scripts に `lint`, `format` 等が定義されていればその指定に従う。
 - 自動フォーマット機能がある場合は積極的に活用し、チーム内の一貫性を保つ。
 
-### ● TypeScript厳格ルール
+### ● TypeScript型安全性の重視
 
-**非nullアサーション演算子（`!`）の使用を原則禁止：**
-
-```tsx
-// ❌ 禁止：非nullアサーション演算子の使用
-const user = getUser()!
-const name = user.profile!.name
-
-// ✅ 推奨：適切なnullチェックと型ガード
-const user = getUser()
-if (!user) {
-  throw new Error('User not found')
-}
-
-const name = user.profile?.name ?? 'Unknown'
-
-// ✅ 推奨：Optional Chainingと分岐処理
-if (user.profile?.name) {
-  console.log(`Hello, ${user.profile.name}`)
-}
-```
-
-**理由と代替手段：**
-- 非nullアサーション演算子はランタイムエラーの原因となる
-- TypeScriptの型安全性を無効化してしまう
-- Optional Chaining (`?.`) と Nullish Coalescing (`??`) を活用
+- Optional Chaining (`?.`) と Nullish Coalescing (`??`) を積極的に活用
 - 適切な型ガードとエラーハンドリングを実装
+- 非nullアサーション演算子（`!`）の使用はESLintで制限
 
 ### ● コード品質チェック（必須）
 
@@ -261,39 +225,6 @@ pnpm format
 - 型エラー・Lint エラーを放置したままコード生成を終了しない。
 - これらのチェックは CI でも実行されるため、事前に手元で解消しておくことが重要。
 
-### ● Storybook設定の注意事項
-
-**Storybookを利用する場合のベストプラクティス：**
-
-```tsx
-// ストーリーファイル (.stories.tsx) のimport
-import type { Meta, StoryObj } from '@storybook/nextjs' // ✅ 正しい
-import type { Meta, StoryObj } from '@storybook/react'  // ❌ 非推奨
-
-// React 19対応
-import React from 'react' // JSXを使用する場合は明示的にimport
-
-// ストーリー定義例
-const meta = {
-  title: 'shared/ui/Button',
-  component: Button,
-  parameters: {
-    layout: 'centered',
-  },
-  tags: ['autodocs'],
-} satisfies Meta<typeof Button>
-
-export default meta
-type Story = StoryObj<typeof meta>
-```
-
-**重要なポイント：**
-
-- Next.jsプロジェクトでは`@storybook/nextjs`を使用する（`@storybook/react`は非推奨）
-- JSXを使用するストーリーファイルでは`import React from 'react'`を明示的に追加
-- eslint設定で`storybook/no-renderer-packages`ルールに準拠する
-- package.jsonに`@storybook/nextjs-vite`フレームワークが設定されていることを確認
-
 ---
 
 ## 8. 禁止事項
@@ -302,7 +233,6 @@ type Story = StoryObj<typeof meta>
 - Next.js App Router の基本原則に反する設計を理由なく推奨すること。
 - 過度な抽象化による可読性低下（不要な Service / Repository の乱立など）。
 - DDD 用語の乱用により実務理解を阻害すること。
-- **非nullアサーション演算子（`!`）の使用**：型安全性を損ない、ランタイムエラーの原因となる。
 
 ---
 
