@@ -4,5 +4,7 @@ import Page from './page'
 
 test('Page renders correctly', () => {
   render(<Page />)
-  expect(screen.getByText('To get started, edit the page.tsx file.')).toBeInTheDocument()
+  expect(
+    screen.getByText('To get started, edit the page.tsx file.')
+  ).toBeInTheDocument()
 })

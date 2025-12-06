@@ -20,6 +20,7 @@ Next.js + TypeScript + DDD/クリーンアーキテクチャ環境でのテス�
 ### 1. レイヤー別テスト方針
 
 #### Domain層（カバレッジ目標: 90%以上）
+
 - **最優先でテスト実施**
 - ビジネスロジックの中核を保護
 - エンティティ、値オブジェクト、ドメインサービスをテスト
@@ -31,19 +32,20 @@ import { Room } from './room.entity'
 
 describe('Room Entity', () => {
   test('入室時に定員を超えていたらエラー', () => {
-    const room = new Room({ 
+    const room = new Room({
       id: '1',
       name: 'Meeting Room',
-      maxCapacity: 5, 
-      currentUsers: ['user1', 'user2', 'user3', 'user4', 'user5']
+      maxCapacity: 5,
+      currentUsers: ['user1', 'user2', 'user3', 'user4', 'user5'],
     })
-    
+
     expect(() => room.addUser('user6')).toThrow('Room is at full capacity')
   })
 })
 ```
 
 #### Application層（カバレッジ目標: 80%以上）
+
 - **高優先でテスト実施**
 - UseCase、カスタムフックのロジックをテスト
 - 外部依存はモックで対応
@@ -63,11 +65,11 @@ describe('useRoom Hook', () => {
 
   test('退室時にリアルタイム接続をクリーンアップ', async () => {
     const { result } = renderHook(() => useRoom())
-    
+
     await act(async () => {
       await result.current.leaveRoom('room1')
     })
-    
+
     expect(mockSupabaseClient.channel).toHaveBeenCalledWith('room:room1')
     expect(mockChannel.unsubscribe).toHaveBeenCalled()
   })
@@ -75,6 +77,7 @@ describe('useRoom Hook', () => {
 ```
 
 #### UI層
+
 - **Storybookでビジュアルテスト**がメイン
 - Vitestは以下のケースのみ:
   - 複雑なフォームバリデーション
@@ -91,9 +94,9 @@ describe('RoomForm', () => {
   test('必須フィールドが空の場合、エラーメッセージを表示', async () => {
     const onSubmit = vi.fn()
     render(<RoomForm onSubmit={onSubmit} />)
-    
+
     fireEvent.click(screen.getByRole('button', { name: '作成' }))
-    
+
     expect(await screen.findByText('ルーム名は必須です')).toBeInTheDocument()
     expect(onSubmit).not.toHaveBeenCalled()
   })
@@ -101,6 +104,7 @@ describe('RoomForm', () => {
 ```
 
 #### Infrastructure層
+
 - **APIコールの確認程度**
 - 実装の詳細はモックで隠蔽
 - 実際の通信はE2Eテストで検証
@@ -116,7 +120,7 @@ vi.mock('@/infrastructure/supabase')
 describe('Room API', () => {
   test('fetchRoomsが正しいクエリを実行', async () => {
     await fetchRooms()
-    
+
     expect(mockSupabaseClient.from).toHaveBeenCalledWith('rooms')
     expect(mockSupabaseClient.from().select).toHaveBeenCalledWith('*')
   })
@@ -126,6 +130,7 @@ describe('Room API', () => {
 ### 2. テストファイルの配置
 
 **コロケーション方式を採用**
+
 - テスト対象ファイルと同じ階層に配置
 - ファイル名: `*.test.ts` または `*.test.tsx`
 
@@ -168,24 +173,24 @@ export const mockSupabaseClient = {
     eq: vi.fn().mockReturnThis(),
     single: vi.fn(),
   })),
-  
+
   channel: vi.fn(() => ({
     on: vi.fn().mockReturnThis(),
     subscribe: vi.fn().mockResolvedValue({ status: 'SUBSCRIBED' }),
     unsubscribe: vi.fn(),
   })),
-  
+
   auth: {
-    getUser: vi.fn().mockResolvedValue({ 
-      data: { user: null }, 
-      error: null 
+    getUser: vi.fn().mockResolvedValue({
+      data: { user: null },
+      error: null,
     }),
     signIn: vi.fn(),
     signUp: vi.fn(),
     signOut: vi.fn(),
     onAuthStateChange: vi.fn(),
   },
-  
+
   storage: {
     from: vi.fn(() => ({
       upload: vi.fn(),
@@ -212,7 +217,7 @@ import { render, RenderOptions } from '@testing-library/react'
 export const TestProviders = ({ children }: { children: ReactNode }) => {
   // CLAUDE.mdに記載された技術スタックに応じて設定
   // 例: TanStack Query、認証プロバイダー、テーマプロバイダー等
-  
+
   return (
     <div>
       {/* 必要なプロバイダーをここに追加 */}
@@ -238,12 +243,13 @@ export const renderWithMockAuth = (
       {children}
     </TestProviders>
   )
-  
+
   return render(ui, { wrapper: CustomWrapper, ...options })
 }
 ```
 
 **実装時の注意**
+
 - プロジェクトのCLAUDE.mdに記載された技術スタックを確認
 - 必要なProviderのみを追加（過度な抽象化を避ける）
 - テスト用の設定は本番環境と分離する
@@ -253,10 +259,10 @@ export const renderWithMockAuth = (
 ```json
 {
   "scripts": {
-    "test": "vitest",              // ウォッチモード（開発中）
-    "test:ui": "vitest --ui",       // UI モード（デバッグ用）
-    "test:run": "vitest run",       // CI/CD用（一回実行）
-    "test:coverage": "vitest run --coverage"  // カバレッジレポート
+    "test": "vitest", // ウォッチモード（開発中）
+    "test:ui": "vitest --ui", // UI モード（デバッグ用）
+    "test:run": "vitest run", // CI/CD用（一回実行）
+    "test:coverage": "vitest run --coverage" // カバレッジレポート
   }
 }
 ```

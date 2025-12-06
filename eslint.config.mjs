@@ -1,3 +1,6 @@
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+import storybook from 'eslint-plugin-storybook'
+
 import js from '@eslint/js'
 import { FlatCompat } from '@eslint/eslintrc'
 import { dirname } from 'path'
@@ -23,6 +26,9 @@ export default [
     },
     rules: {
       'prettier/prettier': 'error',
+      // 非nullアサーション演算子（!）の使用を禁止
+      '@typescript-eslint/no-non-null-assertion': 'error',
     },
   },
+  ...storybook.configs['flat/recommended'],
 ]
