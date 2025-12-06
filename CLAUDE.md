@@ -14,11 +14,15 @@
 
 ## 2. 使用するエージェント
 
-フロントエンドの設計・実装・リファクタリングを行うときは、**必ず次のサブエージェントを利用**してください。
+フロントエンドの設計・実装・リファクタリング・テストを行うときは、**必ず次のサブエージェントを利用**してください。
 
 - `.claude/agents/next-ddd-clean-frontend.md`
   - 役割: Next.js App Router ＋ TypeScript ＋ DDD/Clean/FDD 構成のフロントエンド設計・実装・リファクタリング
   - この CLAUDE.md の内容は、`next-ddd-clean-frontend` の「プロジェクト側の設定」として上書きされます。
+
+- `.claude/agents/vitest-testing-strategy.md`
+  - 役割: Vitestを使用したテスト戦略の策定・テストコードの実装
+  - DDD/クリーンアーキテクチャに適したテスト設計を提供
 
 Claude / Claude Code は、**フロントエンド関連の作業をする際に、以下を順番に確認してください：**
 
@@ -43,10 +47,12 @@ Claude / Claude Code は、**フロントエンド関連の作業をする際に
   - Tailwind CSS
 - データフェッチ / 状態管理:
   - **TanStack Query（@tanstack/react-query）**
+- テストフレームワーク:
+  - **Vitest**
+  - @testing-library/react
+  - @testing-library/jest-dom
 - バックエンド:
   - Supabase（サーバー側・API 経由で利用）
-
-`next-ddd-clean-frontend` サブエージェントは、**UI ライブラリとして shadcn/ui、データフェッチとして TanStack Query を前提に動作するようにしてください。**
 
 ---
 
