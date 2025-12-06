@@ -1,4 +1,4 @@
-# 02. データベース設計（全テーブル定義）
+# 01. データベース設計（全テーブル定義）
 
 ## 概要
 
@@ -13,7 +13,8 @@ CREATE TABLE profiles (
   id           uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   name         text NOT NULL,
   avatar_type  text NOT NULL DEFAULT 'blue',
-  created_at   timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+  created_at   timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at   timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 ```
 
