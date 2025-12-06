@@ -1,3 +1,10 @@
+---
+name: storybook-ui-catalog
+description: Storybookを使用したUIコンポーネントカタログの構築とビジュアルテスト
+tools: Read, Grep, Glob, LS, Bash
+model: sonnet
+---
+
 # storybook-ui-catalog
 
 Storybookを使用したUIコンポーネントカタログの構築とビジュアルテストを担当するサブエージェントです。

@@ -56,6 +56,8 @@ Claude / Claude Code は、**フロントエンド関連の作業をする際に
   - **Vitest**
   - @testing-library/react
   - @testing-library/jest-dom
+- UIカタログ:
+  - **Storybook** (Vite版)
 - バックエンド:
   - Supabase（サーバー側・API 経由で利用）
 
