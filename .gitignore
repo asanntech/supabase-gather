@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.local.example
 
 # vercel
 .vercel
@@ -41,7 +42,12 @@ yarn-error.log*
 next-env.d.ts
 
 .history/
+.mcp.sample.json
 
 # AI/MCP configuration
 .mcp.json
 .claude/settings.json
+
+# Supabase
+supabase/.temp/
+supabase/.branches/

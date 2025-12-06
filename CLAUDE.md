@@ -63,7 +63,57 @@ Claude / Claude Code は、**フロントエンド関連の作業をする際に
 
 ---
 
-## 4. アーキテクチャ方針
+## 4. ローカル開発環境
+
+### Supabase ローカル環境
+
+このプロジェクトでは、開発時は**ローカルのSupabase環境を使用**します。以下の手順で環境を構築してください：
+
+1. **Supabase CLIのインストール**
+
+   ```bash
+   pnpm add supabase --save-dev --allow-build=supabase
+   ```
+
+2. **ローカルSupabaseの初期化**
+
+   ```bash
+   npx supabase init
+   ```
+
+3. **ローカルSupabaseの起動**
+
+   ```bash
+   npx supabase start
+   ```
+
+4. **データベースマイグレーション**
+   - テーブル作成やスキーマ変更は `supabase/migrations/` ディレクトリにマイグレーションファイルを作成
+   - マイグレーションの実行:
+     ```bash
+     npx supabase migration up
+     ```
+
+5. **環境変数の設定**
+   - `.env.local` に以下を設定:
+     ```
+     # クライアントサイド用（ブラウザから利用）
+     NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
+     NEXT_PUBLIC_SUPABASE_ANON_KEY=<supabase start実行時に表示されるanon key>
+     
+     # サーバーサイド用（Route Handlers, Server Actions, Server Components）
+     SUPABASE_SERVICE_ROLE_KEY=<supabase start実行時に表示されるservice_role key>
+     ```
+
+### 開発ルール
+
+- **テーブル作成・スキーマ変更は必ずマイグレーションファイルで管理**
+- Supabase Studio (http://localhost:54323) でのGUI操作による変更は避ける
+- 本番環境へのデプロイ時はマイグレーションファイルを使用
+
+---
+
+## 5. アーキテクチャ方針
 
 このプロジェクトは、**DDD（軽量版）＋ FDD（Feature-Driven）＋ クリーンアーキテクチャ（簡易版）** を採用します。  
 詳細な思想・レイヤー分離は `next-ddd-clean-frontend` の定義に従います。
