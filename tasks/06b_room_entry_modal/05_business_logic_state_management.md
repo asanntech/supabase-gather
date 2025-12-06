@@ -1,11 +1,13 @@
 # Task: ビジネスロジックと状態管理実装
 
 ## 目標
+
 ルーム入室とキャンセルのビジネスロジック、データ保存、ルート遷移機能を実装し、統合的な状態管理を提供する
 
 ## 実装内容
 
 ### 1. 入室処理ビジネスロジック
+
 **ファイル**: `src/features/room-entry/services/room-entry-service.ts`
 
 ```typescript
@@ -28,10 +30,16 @@ export interface RoomEntryResult {
 export class RoomEntryService {
   private supabase = createClientComponentClient()
 
-  async enterRoom(displayName: string, avatarColor: AvatarType): Promise<RoomEntryResult> {
+  async enterRoom(
+    displayName: string,
+    avatarColor: AvatarType
+  ): Promise<RoomEntryResult> {
     try {
-      const { data: { user }, error: authError } = await this.supabase.auth.getUser()
-      
+      const {
+        data: { user },
+        error: authError,
+      } = await this.supabase.auth.getUser()
+
       if (authError) {
         throw new Error('認証情報の取得に失敗しました')
       }
@@ -40,7 +48,7 @@ export class RoomEntryService {
         displayName: displayName.trim(),
         avatarColor,
         userId: user?.id || `guest-${Date.now()}`,
-        isGuest: !user
+        isGuest: !user,
       }
 
       // Googleユーザーの場合: profilesテーブルを更新
@@ -51,7 +59,7 @@ export class RoomEntryService {
             id: user.id,
             name: displayName.trim(),
             avatar_color: avatarColor,
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
           })
 
         if (profileError) {
@@ -62,23 +70,29 @@ export class RoomEntryService {
 
       // ローカルストレージにデータ保存（ゲストユーザー用）
       if (!user) {
-        localStorage.setItem('guestUserData', JSON.stringify({
-          displayName: roomEntryData.displayName,
-          avatarColor: roomEntryData.avatarColor,
-          userId: roomEntryData.userId,
-          createdAt: new Date().toISOString()
-        }))
+        localStorage.setItem(
+          'guestUserData',
+          JSON.stringify({
+            displayName: roomEntryData.displayName,
+            avatarColor: roomEntryData.avatarColor,
+            userId: roomEntryData.userId,
+            createdAt: new Date().toISOString(),
+          })
+        )
       }
 
       return {
         success: true,
-        userData: roomEntryData
+        userData: roomEntryData,
       }
     } catch (error) {
       console.error('Room entry error:', error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : '入室処理でエラーが発生しました'
+        error:
+          error instanceof Error
+            ? error.message
+            : '入室処理でエラーが発生しました',
       }
     }
   }
@@ -87,7 +101,7 @@ export class RoomEntryService {
     try {
       // ローカルストレージをクリア
       localStorage.removeItem('guestUserData')
-      
+
       // 認証状態をクリア
       await this.supabase.auth.signOut()
     } catch (error) {
@@ -105,10 +119,10 @@ export class RoomEntryService {
       displayName: userData.displayName,
       avatarColor: userData.avatarColor,
       joinedAt: new Date().toISOString(),
-      isGuest: userData.isGuest
+      isGuest: userData.isGuest,
     }
 
-    return channel.subscribe(async (status) => {
+    return channel.subscribe(async status => {
       if (status === 'SUBSCRIBED') {
         await channel.track(presenceData)
       }
@@ -118,10 +132,11 @@ export class RoomEntryService {
 ```
 
 ### 2. 統合状態管理フック
+
 **ファイル**: `src/features/room-entry/hooks/use-room-entry.ts`
 
 ```typescript
-"use client"
+'use client'
 
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -143,7 +158,7 @@ export function useRoomEntry() {
   const [state, setState] = useState<RoomEntryState>({
     isProcessing: false,
     error: null,
-    step: 'form'
+    step: 'form',
   })
 
   // 子フックの統合
@@ -158,7 +173,7 @@ export function useRoomEntry() {
         ...prev,
         isProcessing: true,
         error: null,
-        step: 'joining'
+        step: 'joining',
       }))
 
       // バリデーション確認
@@ -168,7 +183,7 @@ export function useRoomEntry() {
           ...prev,
           isProcessing: false,
           error: 'フォームに入力エラーがあります',
-          step: 'form'
+          step: 'form',
         }))
         return
       }
@@ -179,7 +194,7 @@ export function useRoomEntry() {
           ...prev,
           isProcessing: false,
           error: 'ルームが利用できません',
-          step: 'form'
+          step: 'form',
         }))
         return
       }
@@ -195,7 +210,7 @@ export function useRoomEntry() {
           ...prev,
           isProcessing: false,
           error: result.error || '入室処理に失敗しました',
-          step: 'error'
+          step: 'error',
         }))
         return
       }
@@ -208,21 +223,20 @@ export function useRoomEntry() {
       setState(prev => ({
         ...prev,
         isProcessing: false,
-        step: 'success'
+        step: 'success',
       }))
 
       // ルーム画面に遷移
       setTimeout(() => {
         router.push('/room/main-room')
       }, 1000) // 1秒の成功表示後に遷移
-
     } catch (error) {
       console.error('Enter room error:', error)
       setState(prev => ({
         ...prev,
         isProcessing: false,
         error: '予期しないエラーが発生しました',
-        step: 'error'
+        step: 'error',
       }))
     }
   }, [form, roomStatus, roomEntryService, router])
@@ -234,7 +248,7 @@ export function useRoomEntry() {
 
       await roomEntryService.cancelEntry()
       form.resetForm()
-      
+
       // トップページに遷移
       router.push('/')
     } catch (error) {
@@ -249,12 +263,12 @@ export function useRoomEntry() {
     setState(prev => ({
       ...prev,
       error: null,
-      step: 'form'
+      step: 'form',
     }))
   }, [])
 
   // 入室ボタンの有効性判定
-  const canEnterRoom = 
+  const canEnterRoom =
     !state.isProcessing &&
     form.validation.isFormValid &&
     roomStatus.isRoomAvailable &&
@@ -266,20 +280,21 @@ export function useRoomEntry() {
     form,
     roomStatus,
     avatar,
-    
+
     // 動作
     handleEnterRoom,
     handleCancel,
     resetError,
-    
+
     // 計算値
     canEnterRoom,
-    isLoading: state.isProcessing || roomStatus.roomStatus.isConnecting
+    isLoading: state.isProcessing || roomStatus.roomStatus.isConnecting,
   }
 }
 ```
 
 ### 3. アクションボタンコンポーネント
+
 **ファイル**: `src/features/room-entry/ui/room-entry-actions.tsx`
 
 ```typescript
@@ -314,7 +329,7 @@ export function RoomEntryActions({
         <X className="w-4 h-4 mr-2" />
         キャンセル
       </Button>
-      
+
       <Button
         onClick={onEnterRoom}
         disabled={!canEnterRoom || isLoading}
@@ -338,12 +353,14 @@ export function RoomEntryActions({
 ```
 
 ### 4. 必要なshadcn/uiコンポーネント追加
+
 ```bash
 # Button コンポーネント
 npx shadcn@latest add button
 ```
 
 ## 検証項目
+
 - [ ] フォームバリデーション完了後に入室処理が実行される
 - [ ] Googleユーザーの場合profilesテーブルが更新される
 - [ ] ゲストユーザーの場合ローカルストレージに保存される
@@ -354,10 +371,12 @@ npx shadcn@latest add button
 - [ ] ローディング状態が適切に管理される
 
 ## 関連ファイル
+
 - `src/features/room-entry/services/room-entry-service.ts`
 - `src/features/room-entry/hooks/use-room-entry.ts`
 - `src/features/room-entry/ui/room-entry-actions.tsx`
 - `components/ui/button.tsx` (shadcn/ui)
 
 ## 次のタスク
+
 06_error_handling.md - エラーハンドリングと自動復旧機能実装

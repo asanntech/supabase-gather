@@ -1,25 +1,32 @@
 # タスク: 認証コンテキスト・Hooks実装
 
 ## 概要
+
 React Context APIとカスタムHooksを使用した認証状態管理システムを実装する。
 
 ## 前提条件
+
 - DDD/Clean Architecture基盤が構築済み
 - Google・ゲスト認証システムが実装済み
 
 ## 実装対象
+
 ### 1. 認証コンテキストプロバイダー
+
 アプリケーション全体の認証状態管理
 
 ### 2. カスタムHooks
+
 認証機能へのアクセスインターフェース
 
 ### 3. 認証ガード機能
+
 保護されたルートでの認証チェック
 
 ## 詳細仕様
 
 ### 認証コンテキスト
+
 ```typescript
 // src/features/auth/presentation/hooks/AuthContext.tsx
 interface AuthContextType {
@@ -43,14 +50,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const authRepository = new SupabaseAuthRepository(supabase);
     const profileRepository = new SupabaseProfileRepository(supabase);
     const guestRepository = new MemoryGuestRepository();
-    
+
     const googleSignInUseCase = new GoogleSignInUseCase(authRepository, profileRepository);
     const guestSignInUseCase = new GuestSignInUseCase(guestRepository);
     const guestSessionUseCase = new GuestSessionUseCase(guestRepository);
 
     return new AuthService(
       googleSignInUseCase,
-      guestSignInUseCase, 
+      guestSignInUseCase,
       guestSessionUseCase,
       authRepository
     );
@@ -164,51 +171,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 ```
 
 ### カスタムHooks
+
 ```typescript
 // src/features/auth/presentation/hooks/useAuth.ts
 export function useAuth() {
-  const context = useContext(AuthContext);
+  const context = useContext(AuthContext)
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth must be used within an AuthProvider')
   }
-  return context;
+  return context
 }
 
 // src/features/auth/presentation/hooks/useRequireAuth.ts
 export function useRequireAuth() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
+  const { user, loading } = useAuth()
+  const router = useRouter()
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/');
+      router.push('/')
     }
-  }, [user, loading, router]);
+  }, [user, loading, router])
 
-  return { user, loading };
+  return { user, loading }
 }
 
 // src/features/auth/presentation/hooks/useAuthRedirect.ts
 export function useAuthRedirect() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
+  const { user, loading } = useAuth()
+  const router = useRouter()
 
   useEffect(() => {
     if (!loading && user) {
       // 認証済みユーザーのリダイレクト処理
-      const returnTo = sessionStorage.getItem('returnTo');
+      const returnTo = sessionStorage.getItem('returnTo')
       if (returnTo) {
-        sessionStorage.removeItem('returnTo');
-        router.push(returnTo);
+        sessionStorage.removeItem('returnTo')
+        router.push(returnTo)
       }
     }
-  }, [user, loading, router]);
+  }, [user, loading, router])
 
-  return { user, loading };
+  return { user, loading }
 }
 ```
 
 ### 認証ガードコンポーネント
+
 ```typescript
 // src/features/auth/presentation/components/AuthGuard.tsx
 interface AuthGuardProps {
@@ -263,55 +272,62 @@ export function GuestOnlyGuard({ children }: { children: React.ReactNode }) {
 ```
 
 ### TanStack Query統合
+
 ```typescript
 // src/features/auth/presentation/hooks/useAuthQuery.ts
 export function useAuthQuery() {
   return useQuery({
     queryKey: ['auth', 'current-user'],
     queryFn: async () => {
-      const authService = new AuthService(/* 依存注入 */);
-      return await authService.getCurrentUser();
+      const authService = new AuthService(/* 依存注入 */)
+      return await authService.getCurrentUser()
     },
     staleTime: 5 * 60 * 1000, // 5分
     gcTime: 10 * 60 * 1000, // 10分
-  });
+  })
 }
 
 export function useSignInMutation() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (type: 'google' | { type: 'guest'; name: string; avatarType: string }) => {
-      const authService = new AuthService(/* 依存注入 */);
-      
+    mutationFn: async (
+      type: 'google' | { type: 'guest'; name: string; avatarType: string }
+    ) => {
+      const authService = new AuthService(/* 依存注入 */)
+
       if (type === 'google') {
-        return await authService.signInWithGoogle();
+        return await authService.signInWithGoogle()
       } else {
-        return await authService.signInAsGuest(type.name, type.avatarType);
+        return await authService.signInAsGuest(type.name, type.avatarType)
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
+      queryClient.invalidateQueries({ queryKey: ['auth'] })
     },
-  });
+  })
 }
 ```
 
 ## 成果物
+
 - React認証コンテキスト
 - 認証関連カスタムHooks
 - 認証ガードコンポーネント
 - TanStack Query統合
 
 ## 検証方法
+
 - 認証状態の永続化確認
 - ページリロード時の状態保持
 - 認証ガードの動作確認
 
 ## 設計のポイント
+
 - **型安全性**: TypeScriptによる厳密な型定義
 - **DI原則**: 依存性注入による疎結合設計
 - **リアクティブ**: React Contextによるリアルタイム状態更新
 
 ## 次のタスクへの準備
+
 - 認証システム完了により認証フロー統合準備完了

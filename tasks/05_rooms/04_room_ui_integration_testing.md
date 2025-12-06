@@ -1,26 +1,33 @@
 # タスク: ルームUI統合・テスト実装
 
 ## 概要
+
 ルーム機能の全要素（Presence、チャット、UI）を統合し、完全なバーチャルオフィス体験を提供するUIとエンドツーエンドテストを実装する。
 
 ## 前提条件
+
 - ルームドメイン基盤が実装済み
 - Presence・定員管理システムが実装済み
 - リアルタイムチャット機能が実装済み
 
 ## 実装対象
+
 ### 1. 統合ルームUI
+
 Presence、チャット、定員表示を統合したルーム画面
 
 ### 2. リアルタイム状態管理
+
 全機能のリアルタイム同期とエラーハンドリング
 
 ### 3. エンドツーエンドテスト
+
 実際のユーザーシナリオでの動作確認
 
 ## 詳細仕様
 
 ### 統合ルームコンテナ
+
 ```typescript
 // src/features/rooms/presentation/components/RoomContainer.tsx
 interface RoomContainerProps {
@@ -30,7 +37,7 @@ interface RoomContainerProps {
 export function RoomContainer({ roomId }: RoomContainerProps) {
   const { user } = useAuth();
   const navigation = useNavigation();
-  
+
   const {
     members,
     capacity,
@@ -64,7 +71,7 @@ export function RoomContainer({ roomId }: RoomContainerProps) {
       try {
         setRoomState('joining');
         const result = await joinRoom();
-        
+
         if (result.success) {
           setRoomState('active');
           setErrorMessage(null);
@@ -105,8 +112,8 @@ export function RoomContainer({ roomId }: RoomContainerProps) {
   // エラー状態
   if (roomState === 'error' || currentError) {
     return (
-      <RoomErrorScreen 
-        error={currentError || '不明なエラーが発生しました'} 
+      <RoomErrorScreen
+        error={currentError || '不明なエラーが発生しました'}
         onRetry={() => window.location.reload()}
         onExit={handleLeaveRoom}
       />
@@ -117,7 +124,7 @@ export function RoomContainer({ roomId }: RoomContainerProps) {
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       {/* ヘッダー */}
-      <RoomHeader 
+      <RoomHeader
         roomId={roomId}
         capacity={capacity}
         onLeaveRoom={handleLeaveRoom}
@@ -127,7 +134,7 @@ export function RoomContainer({ roomId }: RoomContainerProps) {
       <div className="flex-1 flex overflow-hidden">
         {/* 2Dスペース */}
         <div className="flex-1 relative">
-          <AvatarSpace 
+          <AvatarSpace
             roomId={roomId}
             members={members}
             currentUser={user}
@@ -136,7 +143,7 @@ export function RoomContainer({ roomId }: RoomContainerProps) {
 
         {/* チャットサイドバー */}
         <div className="w-80 border-l border-gray-200">
-          <ChatSidebar 
+          <ChatSidebar
             messages={messages}
             loading={chatLoading}
             onSendMessage={sendMessage}
@@ -146,7 +153,7 @@ export function RoomContainer({ roomId }: RoomContainerProps) {
       </div>
 
       {/* フッター */}
-      <RoomFooter 
+      <RoomFooter
         user={user}
         members={members}
         isConnected={isConnected}
@@ -157,6 +164,7 @@ export function RoomContainer({ roomId }: RoomContainerProps) {
 ```
 
 ### ルームヘッダー
+
 ```typescript
 // src/features/rooms/presentation/components/RoomHeader.tsx
 interface RoomHeaderProps {
@@ -167,7 +175,7 @@ interface RoomHeaderProps {
 
 export function RoomHeader({ roomId, capacity, onLeaveRoom }: RoomHeaderProps) {
   const roomName = roomId === 'main-room' ? 'メインルーム' : `ルーム: ${roomId}`;
-  
+
   const capacityStatus = useMemo(() => {
     if (capacity.isFull) return { color: 'red', label: '満員' };
     if (capacity.current >= capacity.max * 0.8) return { color: 'yellow', label: '混雑' };
@@ -182,7 +190,7 @@ export function RoomHeader({ roomId, capacity, onLeaveRoom }: RoomHeaderProps) {
           <h1 className="text-xl font-semibold text-gray-900">
             {roomName}
           </h1>
-          
+
           {/* 定員表示 */}
           <div className="flex items-center space-x-2">
             <div className={`w-3 h-3 rounded-full bg-${capacityStatus.color}-500`}></div>
@@ -223,6 +231,7 @@ export function RoomHeader({ roomId, capacity, onLeaveRoom }: RoomHeaderProps) {
 ```
 
 ### アバタースペース（2Dエリア）
+
 ```typescript
 // src/features/rooms/presentation/components/AvatarSpace.tsx
 interface AvatarSpaceProps {
@@ -246,19 +255,19 @@ export function AvatarSpace({ roomId, members, currentUser }: AvatarSpaceProps) 
 
     updateSize();
     window.addEventListener('resize', updateSize);
-    
+
     return () => {
       window.removeEventListener('resize', updateSize);
     };
   }, []);
 
   return (
-    <div 
+    <div
       ref={spaceRef}
       className="relative w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 overflow-hidden"
     >
       {/* グリッド背景 */}
-      <div 
+      <div
         className="absolute inset-0 opacity-10"
         style={{
           backgroundImage: `
@@ -310,7 +319,7 @@ function AvatarMarker({ member, isCurrentUser, spaceSize }: AvatarMarkerProps) {
     const seed = member.clientId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const x = (seed * 7919) % Math.max(spaceSize.width - 80, 100);
     const y = (seed * 7907) % Math.max(spaceSize.height - 80, 100);
-    
+
     return {
       x: Math.max(40, Math.min(x, spaceSize.width - 40)),
       y: Math.max(40, Math.min(y, spaceSize.height - 40)),
@@ -329,12 +338,12 @@ function AvatarMarker({ member, isCurrentUser, spaceSize }: AvatarMarkerProps) {
     >
       {/* アバター */}
       <div className={`relative ${isCurrentUser ? 'ring-4 ring-blue-500' : ''} rounded-full`}>
-        <div 
+        <div
           className={`w-12 h-12 rounded-full bg-${member.avatarType}-500 flex items-center justify-center text-white font-bold shadow-lg`}
         >
           {member.displayName.charAt(0).toUpperCase()}
         </div>
-        
+
         {/* オンライン状態 */}
         <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></div>
       </div>
@@ -342,8 +351,8 @@ function AvatarMarker({ member, isCurrentUser, spaceSize }: AvatarMarkerProps) {
       {/* 名前表示 */}
       <div className="absolute top-14 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
         <div className={`px-2 py-1 rounded text-xs font-medium ${
-          isCurrentUser 
-            ? 'bg-blue-500 text-white' 
+          isCurrentUser
+            ? 'bg-blue-500 text-white'
             : 'bg-white text-gray-700 border border-gray-200'
         }`}>
           {member.displayName}
@@ -356,6 +365,7 @@ function AvatarMarker({ member, isCurrentUser, spaceSize }: AvatarMarkerProps) {
 ```
 
 ### チャットサイドバー
+
 ```typescript
 // src/features/rooms/presentation/components/ChatSidebar.tsx
 interface ChatSidebarProps {
@@ -377,7 +387,7 @@ export function ChatSidebar({ messages, loading, onSendMessage, onLoadMore }: Ch
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!newMessage.trim() || sending) return;
 
     setSending(true);
@@ -416,7 +426,7 @@ export function ChatSidebar({ messages, loading, onSendMessage, onLoadMore }: Ch
         {messages.map((message) => (
           <ChatMessage key={message.id} message={message} />
         ))}
-        
+
         {/* 空の状態 */}
         {messages.length === 0 && !loading && (
           <div className="text-center text-gray-500 py-8">
@@ -455,6 +465,7 @@ export function ChatSidebar({ messages, loading, onSendMessage, onLoadMore }: Ch
 ```
 
 ### エンドツーエンドテスト
+
 ```typescript
 // __tests__/rooms/room-integration.test.tsx
 describe('ルーム機能 統合テスト', () => {
@@ -596,7 +607,7 @@ describe('ルーム機能 パフォーマンステスト', () => {
 
     render(
       <TestWrapper>
-        <ChatSidebar 
+        <ChatSidebar
           messages={largeMessageList}
           loading={false}
           onSendMessage={jest.fn()}
@@ -612,13 +623,16 @@ describe('ルーム機能 パフォーマンステスト', () => {
 ```
 
 ## 成果物
+
 - 統合ルームUI（ヘッダー、2Dスペース、チャット）
 - リアルタイム状態管理
 - エンドツーエンドテスト
 - パフォーマンステスト
 
 ## 検証項目
+
 ### 機能テスト
+
 - [ ] ルーム入退室の動作
 - [ ] リアルタイムチャット
 - [ ] Presence表示・更新
@@ -626,21 +640,25 @@ describe('ルーム機能 パフォーマンステスト', () => {
 - [ ] エラーハンドリング
 
 ### ユーザビリティテスト
+
 - [ ] 直感的な操作性
 - [ ] リアルタイム更新の体感
 - [ ] レスポンシブデザイン
 
 ### パフォーマンステスト
+
 - [ ] 大量メッセージでの動作
 - [ ] メモリ使用量
 - [ ] リアルタイム更新の遅延
 
 ## 本番環境準備
+
 - Supabase Realtime最適化
 - エラー監視・ログ設定
 - パフォーマンス監視
 
 ## 次のフェーズへの準備
+
 ルーム機能完了により、アバターシステム実装の準備が整いました。
 
 <function_calls>

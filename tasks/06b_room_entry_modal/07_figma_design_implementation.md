@@ -1,11 +1,13 @@
 # Task: Figmaデザイン完全実装
 
 ## 目標
+
 Figmaデザイン（https://www.figma.com/design/vES3VewH8Qo1MA0Au0oujK/Supabase-Gather?node-id=23-59）を完全に再現し、レスポンシブ対応を含む最終的なUI調整を行う
 
 ## 実装内容
 
 ### 1. 最終統合モーダルコンポーネント
+
 **ファイル**: `src/features/room-entry/ui/room-entry-modal.tsx` (最終版)
 
 ```typescript
@@ -44,7 +46,7 @@ export function RoomEntryModal({ isOpen, onOpenChange }: RoomEntryModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent 
+      <DialogContent
         className="
           sm:max-w-md max-w-[95vw] w-full
           p-0 gap-0 bg-white
@@ -137,6 +139,7 @@ export function RoomEntryModal({ isOpen, onOpenChange }: RoomEntryModalProps) {
 ```
 
 ### 2. レスポンシブスタイリング調整
+
 **ファイル**: `src/features/room-entry/ui/responsive-styles.css`
 
 ```css
@@ -181,6 +184,7 @@ export function RoomEntryModal({ isOpen, onOpenChange }: RoomEntryModalProps) {
 ```
 
 ### 3. Figmaデザイン準拠のスタイル定数
+
 **ファイル**: `src/features/room-entry/constants/design-tokens.ts`
 
 ```typescript
@@ -191,60 +195,61 @@ export const DESIGN_TOKENS = {
       100: '#dbeafe',
       500: '#3b82f6',
       600: '#2563eb',
-      900: '#1e3a8a'
+      900: '#1e3a8a',
     },
     gray: {
       50: '#f9fafb',
       100: '#f3f4f6',
       200: '#e5e7eb',
       600: '#4b5563',
-      900: '#111827'
+      900: '#111827',
     },
     success: {
       50: '#f0fdf4',
       100: '#dcfce7',
-      600: '#16a34a'
+      600: '#16a34a',
     },
     error: {
       50: '#fef2f2',
       100: '#fee2e2',
-      600: '#dc2626'
-    }
+      600: '#dc2626',
+    },
   },
   spacing: {
     modal: {
       padding: '1.5rem',
-      gap: '1.5rem'
+      gap: '1.5rem',
     },
     section: {
-      gap: '1rem'
-    }
+      gap: '1rem',
+    },
   },
   borderRadius: {
     modal: '0.75rem',
     button: '0.5rem',
-    input: '0.375rem'
+    input: '0.375rem',
   },
   shadows: {
     modal: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    button: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
-  }
+    button: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+  },
 } as const
 
 // Figma準拠のサイズ設定
 export const MODAL_DIMENSIONS = {
   desktop: {
     width: '28rem', // 448px
-    maxHeight: '80vh'
+    maxHeight: '80vh',
   },
   mobile: {
     width: '100vw',
-    height: '100vh'
-  }
+    height: '100vh',
+  },
 } as const
 ```
 
 ### 4. アクセシビリティ強化
+
 **ファイル**: `src/features/room-entry/ui/accessibility-enhancements.tsx`
 
 ```typescript
@@ -252,29 +257,31 @@ export const MODAL_DIMENSIONS = {
 export const A11Y_LABELS = {
   modal: {
     'aria-label': 'ルーム入室設定',
-    'role': 'dialog',
-    'aria-modal': 'true'
+    role: 'dialog',
+    'aria-modal': 'true',
   },
   displayNameInput: {
     'aria-label': '表示名を入力',
-    'aria-required': 'true'
+    'aria-required': 'true',
   },
   avatarSelector: {
-    'role': 'radiogroup',
-    'aria-label': 'アバターを選択'
+    role: 'radiogroup',
+    'aria-label': 'アバターを選択',
   },
   enterButton: {
-    'aria-label': 'ルームに入室する'
+    'aria-label': 'ルームに入室する',
   },
   cancelButton: {
-    'aria-label': 'キャンセルしてトップページに戻る'
-  }
+    'aria-label': 'キャンセルしてトップページに戻る',
+  },
 } as const
 
 // フォーカス管理
 export function useFocusManagement() {
   const focusFirstInput = useCallback(() => {
-    const firstInput = document.querySelector('[data-focus-first]') as HTMLElement
+    const firstInput = document.querySelector(
+      '[data-focus-first]'
+    ) as HTMLElement
     firstInput?.focus()
   }, [])
 
@@ -293,6 +300,7 @@ export function useFocusManagement() {
 ```
 
 ### 5. 最終的な統合テスト用のストーリーブック設定
+
 **ファイル**: `src/features/room-entry/ui/room-entry-modal.stories.tsx`
 
 ```typescript
@@ -306,8 +314,8 @@ const meta: Meta<typeof RoomEntryModal> = {
     layout: 'fullscreen',
   },
   argTypes: {
-    isOpen: { control: 'boolean' }
-  }
+    isOpen: { control: 'boolean' },
+  },
 }
 
 export default meta
@@ -316,40 +324,41 @@ type Story = StoryObj<typeof RoomEntryModal>
 export const Default: Story = {
   args: {
     isOpen: true,
-    onOpenChange: () => {}
-  }
+    onOpenChange: () => {},
+  },
 }
 
 export const WithError: Story = {
   args: {
     isOpen: true,
-    onOpenChange: () => {}
-  }
+    onOpenChange: () => {},
+  },
   // エラー状態のモック実装
 }
 
 export const RoomFull: Story = {
   args: {
     isOpen: true,
-    onOpenChange: () => {}
-  }
+    onOpenChange: () => {},
+  },
   // 満員状態のモック実装
 }
 
 export const Mobile: Story = {
   args: {
     isOpen: true,
-    onOpenChange: () => {}
+    onOpenChange: () => {},
   },
   parameters: {
     viewport: {
-      defaultViewport: 'mobile1'
-    }
-  }
+      defaultViewport: 'mobile1',
+    },
+  },
 }
 ```
 
 ## 検証項目
+
 - [ ] Figmaデザインとピクセル完璧な一致
 - [ ] デスクトップでの適切なモーダルサイズ
 - [ ] モバイルでのフルスクリーン表示
@@ -361,6 +370,7 @@ export const Mobile: Story = {
 - [ ] フォーカス管理とタブオーダー
 
 ## 関連ファイル
+
 - `src/features/room-entry/ui/room-entry-modal.tsx` (最終版)
 - `src/features/room-entry/ui/responsive-styles.css`
 - `src/features/room-entry/constants/design-tokens.ts`
@@ -368,6 +378,7 @@ export const Mobile: Story = {
 - `src/features/room-entry/ui/room-entry-modal.stories.tsx`
 
 ## 完了確認事項
+
 - [ ] 全ての個別コンポーネントが統合されている
 - [ ] Figmaデザインが完璧に再現されている
 - [ ] レスポンシブデザインが全デバイスで動作する

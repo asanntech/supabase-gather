@@ -1,11 +1,13 @@
 # Task: ルーム状態監視機能実装
 
 ## 目標
+
 Supabase Presence チャンネルを使用してリアルタイムでルームの人数と状態を監視する機能を実装する
 
 ## 実装内容
 
 ### 1. ルーム状態タイプ定義
+
 **ファイル**: `src/features/rooms/types/room-status.ts`
 
 ```typescript
@@ -29,10 +31,11 @@ export interface RoomPresenceData {
 ```
 
 ### 2. ルーム状態監視フック
+
 **ファイル**: `src/features/rooms/hooks/use-room-status.ts`
 
 ```typescript
-"use client"
+'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
@@ -47,7 +50,7 @@ export function useRoomStatus() {
     maxOccupancy: MAX_ROOM_OCCUPANCY,
     isConnecting: true,
     error: null,
-    lastUpdated: new Date()
+    lastUpdated: new Date(),
   })
 
   const supabase = createClientComponentClient()
@@ -59,8 +62,8 @@ export function useRoomStatus() {
       // Presence チャンネルに接続してルーム状態をチェック
       const channel = supabase.channel('room-main-room', {
         config: {
-          presence: { key: 'room-check' }
-        }
+          presence: { key: 'room-check' },
+        },
       })
 
       // 現在の人数を取得
@@ -73,24 +76,24 @@ export function useRoomStatus() {
           currentOccupancy: currentCount,
           status: currentCount >= MAX_ROOM_OCCUPANCY ? 'full' : 'available',
           isConnecting: false,
-          lastUpdated: new Date()
+          lastUpdated: new Date(),
         }))
       })
 
       // エラーハンドリング
-      channel.on('presence', { event: 'error' }, (error) => {
+      channel.on('presence', { event: 'error' }, error => {
         setRoomStatus(prev => ({
           ...prev,
           status: 'error',
           isConnecting: false,
           error: 'ルームへの接続でエラーが発生しました',
-          lastUpdated: new Date()
+          lastUpdated: new Date(),
         }))
       })
 
       // チャンネル購読
       const subscription = await channel.subscribe()
-      
+
       if (subscription === 'SUBSCRIBED') {
         // 一定時間後にタイムアウトチェック
         setTimeout(() => {
@@ -100,7 +103,7 @@ export function useRoomStatus() {
               status: 'error',
               isConnecting: false,
               error: '接続がタイムアウトしました',
-              lastUpdated: new Date()
+              lastUpdated: new Date(),
             }))
           }
         }, 10000) // 10秒タイムアウト
@@ -115,7 +118,7 @@ export function useRoomStatus() {
         status: 'error',
         isConnecting: false,
         error: 'ルーム状態の確認に失敗しました',
-        lastUpdated: new Date()
+        lastUpdated: new Date(),
       }))
     }
   }, [supabase])
@@ -134,12 +137,13 @@ export function useRoomStatus() {
     retryConnection,
     isRoomAvailable: roomStatus.status === 'available',
     isRoomFull: roomStatus.status === 'full',
-    hasError: roomStatus.status === 'error'
+    hasError: roomStatus.status === 'error',
   }
 }
 ```
 
 ### 3. ルーム状態表示コンポーネント
+
 **ファイル**: `src/features/rooms/ui/room-status-display.tsx`
 
 ```typescript
@@ -221,15 +225,17 @@ export function RoomStatusDisplay({ roomStatus, onRetry }: RoomStatusDisplayProp
 ```
 
 ### 4. 必要なshadcn/uiコンポーネント追加
+
 ```bash
 # Alert コンポーネント
 npx shadcn@latest add alert
 
-# Badge コンポーネント  
+# Badge コンポーネント
 npx shadcn@latest add badge
 ```
 
 ## 検証項目
+
 - [ ] Presence チャンネルに正常に接続される
 - [ ] リアルタイムで人数が更新される
 - [ ] 満員時に適切なメッセージが表示される
@@ -238,6 +244,7 @@ npx shadcn@latest add badge
 - [ ] タイムアウト処理が適切に動作する
 
 ## 関連ファイル
+
 - `src/features/rooms/types/room-status.ts`
 - `src/features/rooms/hooks/use-room-status.ts`
 - `src/features/rooms/ui/room-status-display.tsx`
@@ -245,4 +252,5 @@ npx shadcn@latest add badge
 - `components/ui/badge.tsx` (shadcn/ui)
 
 ## 次のタスク
+
 04_form_input_validation.md - フォーム入力とバリデーション実装

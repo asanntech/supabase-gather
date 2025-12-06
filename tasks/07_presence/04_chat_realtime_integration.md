@@ -24,18 +24,22 @@ class ChatRealtimeService {
       .channel('messages')
       .on(
         'postgres_changes',
-        { 
-          event: 'INSERT', 
-          schema: 'public', 
+        {
+          event: 'INSERT',
+          schema: 'public',
           table: 'messages',
-          filter: `room_id=eq.${roomId}`
+          filter: `room_id=eq.${roomId}`,
         },
         this.handleNewMessage
       )
       .subscribe()
   }
 
-  async sendMessage(roomId: string, content: string, userInfo: PresenceData): Promise<void> {
+  async sendMessage(
+    roomId: string,
+    content: string,
+    userInfo: PresenceData
+  ): Promise<void> {
     const messageData = {
       room_id: roomId,
       content,
@@ -43,12 +47,10 @@ class ChatRealtimeService {
       user_id: userInfo.user_id,
       display_name: userInfo.display_name,
       avatar_type: userInfo.avatar_type,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
     }
 
-    const { error } = await supabase
-      .from('messages')
-      .insert(messageData)
+    const { error } = await supabase.from('messages').insert(messageData)
 
     if (error) {
       throw new Error(`メッセージ送信エラー: ${error.message}`)
@@ -75,7 +77,10 @@ class ChatRealtimeService {
 
 ```typescript
 // useChatIntegration.ts
-export const useChatIntegration = (roomId: string, presenceData: PresenceData | null) => {
+export const useChatIntegration = (
+  roomId: string,
+  presenceData: PresenceData | null
+) => {
   const [messages, setMessages] = useState<MessageData[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -95,7 +100,9 @@ export const useChatIntegration = (roomId: string, presenceData: PresenceData | 
         if (error) throw error
         setMessages(data || [])
       } catch (err) {
-        setError(err instanceof Error ? err.message : '初期メッセージ読み込みエラー')
+        setError(
+          err instanceof Error ? err.message : '初期メッセージ読み込みエラー'
+        )
       } finally {
         setIsLoading(false)
       }
@@ -107,7 +114,7 @@ export const useChatIntegration = (roomId: string, presenceData: PresenceData | 
   // リアルタイム購読開始
   useEffect(() => {
     const service = chatService.current
-    
+
     service.onMessageReceived = (newMessage: MessageData) => {
       setMessages(prev => [...prev, newMessage])
     }
@@ -120,22 +127,29 @@ export const useChatIntegration = (roomId: string, presenceData: PresenceData | 
   }, [roomId])
 
   // メッセージ送信
-  const sendMessage = useCallback(async (content: string) => {
-    if (!presenceData || !content.trim()) return
+  const sendMessage = useCallback(
+    async (content: string) => {
+      if (!presenceData || !content.trim()) return
 
-    try {
-      await chatService.current.sendMessage(roomId, content.trim(), presenceData)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'メッセージ送信エラー')
-    }
-  }, [roomId, presenceData])
+      try {
+        await chatService.current.sendMessage(
+          roomId,
+          content.trim(),
+          presenceData
+        )
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'メッセージ送信エラー')
+      }
+    },
+    [roomId, presenceData]
+  )
 
   return {
     messages,
     isLoading,
     error,
     sendMessage,
-    clearError: () => setError(null)
+    clearError: () => setError(null),
   }
 }
 ```
@@ -147,7 +161,7 @@ export const useChatIntegration = (roomId: string, presenceData: PresenceData | 
 interface EnhancedMessageData extends MessageData {
   isCurrentUser: boolean
   isOnline: boolean
-  currentPosition?: { x: number, y: number }
+  currentPosition?: { x: number; y: number }
 }
 
 // Presence状態との統合
@@ -166,7 +180,9 @@ const enhanceMessagesWithPresence = (
       ...message,
       isCurrentUser,
       isOnline: !!senderPresence,
-      currentPosition: senderPresence ? { x: senderPresence.x, y: senderPresence.y } : undefined
+      currentPosition: senderPresence
+        ? { x: senderPresence.x, y: senderPresence.y }
+        : undefined,
     }
   })
 }
@@ -204,7 +220,7 @@ const integratePresenceWithChat = (presenceEvents: PresenceEventPayload) => {
       addSystemMessage(`${user.display_name} さんが入室しました`)
     })
   }
-  
+
   if (presenceEvents.event === 'leave' && presenceEvents.leftPresences) {
     presenceEvents.leftPresences.forEach(user => {
       addSystemMessage(`${user.display_name} さんが退室しました`)
@@ -221,9 +237,9 @@ const addSystemMessage = (content: string) => {
     user_type: 'system',
     display_name: 'システム',
     avatar_type: 'system',
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
   }
-  
+
   setMessages(prev => [...prev, systemMessage])
 }
 ```

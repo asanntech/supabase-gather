@@ -1,11 +1,13 @@
 # Task: フォーム入力とバリデーション実装
 
 ## 目標
+
 表示名入力フィールドと包括的なバリデーション機能を実装し、Googleユーザーとゲストユーザーで異なる動作を提供する
 
 ## 実装内容
 
 ### 1. バリデーションルール定義
+
 **ファイル**: `src/features/room-entry/types/validation.ts`
 
 ```typescript
@@ -22,20 +24,21 @@ export interface ValidationResult {
 export const DISPLAY_NAME_RULES: ValidationRule[] = [
   {
     message: '表示名を入力してください',
-    validate: (value: string) => value.trim().length > 0
+    validate: (value: string) => value.trim().length > 0,
   },
   {
     message: '20文字以内で入力してください',
-    validate: (value: string) => value.length <= 20
+    validate: (value: string) => value.length <= 20,
   },
   {
     message: '1文字以上入力してください',
-    validate: (value: string) => value.trim().length >= 1
+    validate: (value: string) => value.trim().length >= 1,
   },
   {
     message: '特殊文字は使用できません',
-    validate: (value: string) => /^[a-zA-Z0-9あ-んァ-ヶー一-龯\s]+$/.test(value)
-  }
+    validate: (value: string) =>
+      /^[a-zA-Z0-9あ-んァ-ヶー一-龯\s]+$/.test(value),
+  },
 ]
 
 export function validateDisplayName(displayName: string): ValidationResult {
@@ -49,16 +52,17 @@ export function validateDisplayName(displayName: string): ValidationResult {
 
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   }
 }
 ```
 
 ### 2. フォーム状態管理フック
+
 **ファイル**: `src/features/room-entry/hooks/use-room-entry-form.ts`
 
 ```typescript
-"use client"
+'use client'
 
 import { useState, useCallback, useEffect } from 'react'
 import { useAuth } from '@/shared/hooks/use-auth'
@@ -77,20 +81,20 @@ interface FormValidation {
 
 export function useRoomEntryForm() {
   const { user } = useAuth()
-  
+
   // 初期値設定（Googleユーザーの場合はprofiles.nameを使用）
   const [formData, setFormData] = useState<RoomEntryFormData>({
     displayName: '',
-    selectedAvatar: 'blue'
+    selectedAvatar: 'blue',
   })
 
   const [validation, setValidation] = useState<FormValidation>({
     displayName: { isValid: true, errors: [] },
-    isFormValid: false
+    isFormValid: false,
   })
 
   const [touched, setTouched] = useState({
-    displayName: false
+    displayName: false,
   })
 
   // Googleユーザーの初期値設定
@@ -98,18 +102,21 @@ export function useRoomEntryForm() {
     if (user) {
       // TODO: profiles テーブルから名前を取得
       // const profileName = await getProfileName(user.id)
-      const profileName = user.user_metadata?.full_name || user.email?.split('@')[0] || ''
-      
+      const profileName =
+        user.user_metadata?.full_name || user.email?.split('@')[0] || ''
+
       setFormData(prev => ({
         ...prev,
-        displayName: profileName
+        displayName: profileName,
       }))
     } else {
       // ゲストユーザーの場合はランダム名
-      const randomGuest = `ゲスト${Math.floor(Math.random() * 9999).toString().padStart(4, '0')}`
+      const randomGuest = `ゲスト${Math.floor(Math.random() * 9999)
+        .toString()
+        .padStart(4, '0')}`
       setFormData(prev => ({
         ...prev,
-        displayName: randomGuest
+        displayName: randomGuest,
       }))
     }
   }, [user])
@@ -117,10 +124,10 @@ export function useRoomEntryForm() {
   // リアルタイムバリデーション
   const validateForm = useCallback(() => {
     const displayNameValidation = validateDisplayName(formData.displayName)
-    
+
     const newValidation = {
       displayName: displayNameValidation,
-      isFormValid: displayNameValidation.isValid
+      isFormValid: displayNameValidation.isValid,
     }
 
     setValidation(newValidation)
@@ -132,12 +139,15 @@ export function useRoomEntryForm() {
   }, [validateForm])
 
   // フィールド更新関数
-  const updateDisplayName = useCallback((value: string) => {
-    setFormData(prev => ({ ...prev, displayName: value }))
-    if (touched.displayName) {
-      validateForm()
-    }
-  }, [touched.displayName, validateForm])
+  const updateDisplayName = useCallback(
+    (value: string) => {
+      setFormData(prev => ({ ...prev, displayName: value }))
+      if (touched.displayName) {
+        validateForm()
+      }
+    },
+    [touched.displayName, validateForm]
+  )
 
   const updateSelectedAvatar = useCallback((avatar: AvatarType) => {
     setFormData(prev => ({ ...prev, selectedAvatar: avatar }))
@@ -153,14 +163,14 @@ export function useRoomEntryForm() {
   const resetForm = useCallback(() => {
     setFormData({
       displayName: '',
-      selectedAvatar: 'blue'
+      selectedAvatar: 'blue',
     })
     setTouched({
-      displayName: false
+      displayName: false,
     })
     setValidation({
       displayName: { isValid: true, errors: [] },
-      isFormValid: false
+      isFormValid: false,
     })
   }, [])
 
@@ -172,12 +182,13 @@ export function useRoomEntryForm() {
     updateSelectedAvatar,
     handleDisplayNameBlur,
     validateForm,
-    resetForm
+    resetForm,
   }
 }
 ```
 
 ### 3. 表示名入力コンポーネント
+
 **ファイル**: `src/features/room-entry/ui/display-name-input.tsx`
 
 ```typescript
@@ -216,7 +227,7 @@ export function DisplayNameInput({
           表示名 {!isGuestUser && <span className="text-xs text-gray-500">(編集可能)</span>}
         </div>
       </Label>
-      
+
       <div className="space-y-1">
         <Input
           id="displayName"
@@ -230,7 +241,7 @@ export function DisplayNameInput({
           `}
           maxLength={20}
         />
-        
+
         {/* 文字数カウンター */}
         <div className="flex justify-between text-xs">
           <div className="space-y-1">
@@ -256,6 +267,7 @@ export function DisplayNameInput({
 ```
 
 ### 4. 必要なshadcn/uiコンポーネント追加
+
 ```bash
 # Input コンポーネント
 npx shadcn@latest add input
@@ -265,6 +277,7 @@ npx shadcn@latest add label
 ```
 
 ## 検証項目
+
 - [ ] Googleユーザーの場合、プロフィール名が初期値として設定される
 - [ ] ゲストユーザーの場合、ランダムなゲスト名が初期値として設定される
 - [ ] リアルタイムバリデーションが動作する
@@ -274,6 +287,7 @@ npx shadcn@latest add label
 - [ ] フォームの有効性が正しく判定される
 
 ## 関連ファイル
+
 - `src/features/room-entry/types/validation.ts`
 - `src/features/room-entry/hooks/use-room-entry-form.ts`
 - `src/features/room-entry/ui/display-name-input.tsx`
@@ -281,4 +295,5 @@ npx shadcn@latest add label
 - `components/ui/label.tsx` (shadcn/ui)
 
 ## 次のタスク
+
 05_business_logic_state_management.md - ビジネスロジックと状態管理実装

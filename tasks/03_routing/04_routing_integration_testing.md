@@ -1,26 +1,33 @@
 # タスク: ルーティングシステム統合・テスト
 
 ## 概要
+
 ルーティングシステム全体の統合とエンドツーエンドテストを実施し、ナビゲーション機能の完全性を確認する。
 
 ## 前提条件
+
 - ミドルウェア・認証ガードが実装済み
 - ナビゲーションシステムが実装済み
 - 動的ルーティングが実装済み
 
 ## 実装対象
+
 ### 1. ルーティングシステム統合
+
 全ルーティング機能の結合と動作確認
 
 ### 2. エンドツーエンドテスト
+
 実際のユーザーフローでのナビゲーションテスト
 
 ### 3. SEO・アクセシビリティ対応
+
 検索エンジンとアクセシビリティへの配慮
 
 ## 詳細仕様
 
 ### App Layout統合
+
 ```typescript
 // app/layout.tsx
 import { Metadata } from 'next';
@@ -73,6 +80,7 @@ export default function RootLayout({
 ```
 
 ### グローバルナビゲーション
+
 ```typescript
 // src/shared/components/layout/GlobalNavigation.tsx
 'use client';
@@ -155,7 +163,7 @@ export function GlobalNavigation() {
                     ({user.userType === 'google' ? 'Google' : 'ゲスト'})
                   </span>
                 </button>
-                
+
                 {/* ドロップダウンメニュー（将来拡張用） */}
               </div>
             )}
@@ -178,6 +186,7 @@ export function GlobalNavigation() {
 ```
 
 ### ルーティングテストスイート
+
 ```typescript
 // __tests__/routing/routing-integration.test.tsx
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
@@ -222,7 +231,7 @@ describe('ルーティング統合テスト', () => {
 
     it('認証後にリターンURL通りにリダイレクトされる', async () => {
       const returnTo = '/room/main-room';
-      
+
       render(
         <TestWrapper initialAuth={{ user: mockUser }}>
           <HomePage searchParams={{ returnTo }} />
@@ -323,6 +332,7 @@ describe('ルーティング統合テスト', () => {
 ```
 
 ### SEO・メタデータテスト
+
 ```typescript
 // __tests__/routing/seo-metadata.test.tsx
 describe('SEO・メタデータテスト', () => {
@@ -331,62 +341,64 @@ describe('SEO・メタデータテスト', () => {
       const metadata = await generateMetadata({
         params: { room_id: 'main-room' },
         searchParams: {},
-      });
+      })
 
-      expect(metadata.title).toBe('メインルーム | Supabase Gather');
-      expect(metadata.description).toContain('メインルーム');
-      expect(metadata.openGraph?.title).toBe('メインルーム | Supabase Gather');
-    });
+      expect(metadata.title).toBe('メインルーム | Supabase Gather')
+      expect(metadata.description).toContain('メインルーム')
+      expect(metadata.openGraph?.title).toBe('メインルーム | Supabase Gather')
+    })
 
     it('カスタムルームで動的メタデータが生成される', async () => {
-      const customRoomId = 'custom-room-123';
+      const customRoomId = 'custom-room-123'
       const metadata = await generateMetadata({
         params: { room_id: customRoomId },
         searchParams: {},
-      });
+      })
 
-      expect(metadata.title).toBe(`ルーム: ${customRoomId} | Supabase Gather`);
-    });
-  });
+      expect(metadata.title).toBe(`ルーム: ${customRoomId} | Supabase Gather`)
+    })
+  })
 
   describe('構造化データ', () => {
     it('適切な構造化データが含まれる', () => {
       // JSON-LD構造化データの確認
       // パンくずリスト、組織情報など
-    });
-  });
-});
+    })
+  })
+})
 ```
 
 ### パフォーマンステスト
+
 ```typescript
 // __tests__/routing/performance.test.tsx
 describe('ルーティング パフォーマンステスト', () => {
   it('ページ遷移が高速である（< 500ms）', async () => {
-    const startTime = performance.now();
+    const startTime = performance.now()
 
     const { result } = renderHook(() => useNavigation(), {
       wrapper: TestWrapper,
-    });
+    })
 
     await act(async () => {
-      result.current.goToMainRoom();
+      result.current.goToMainRoom()
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalled();
-      });
-    });
+        expect(mockPush).toHaveBeenCalled()
+      })
+    })
 
-    const endTime = performance.now();
-    expect(endTime - startTime).toBeLessThan(500);
-  });
+    const endTime = performance.now()
+    expect(endTime - startTime).toBeLessThan(500)
+  })
 
   it('ナビゲーション履歴が効率的に管理される', () => {
     // 履歴の上限確認、メモリ使用量など
-  });
-});
+  })
+})
 ```
 
 ### アクセシビリティテスト
+
 ```typescript
 // __tests__/routing/accessibility.test.tsx
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -423,13 +435,16 @@ describe('ルーティング アクセシビリティテスト', () => {
 ```
 
 ## 成果物
+
 - ルーティングシステム統合確認
 - エンドツーエンドテスト
 - SEO・メタデータ対応
 - アクセシビリティ準拠
 
 ## 検証項目
+
 ### 機能テスト
+
 - [ ] 認証フローでのリダイレクト
 - [ ] 動的ルートでのパラメータ処理
 - [ ] 404エラーページの表示
@@ -437,21 +452,25 @@ describe('ルーティング アクセシビリティテスト', () => {
 - [ ] ブレッドクラムの正確性
 
 ### 非機能テスト
+
 - [ ] ページ遷移のパフォーマンス
 - [ ] SEOメタデータの適切性
 - [ ] アクセシビリティ準拠
 - [ ] モバイル対応
 
 ### セキュリティテスト
+
 - [ ] 認証ガードの動作
 - [ ] 不正なリダイレクトの防止
 - [ ] XSS対策の確認
 
 ## 本番環境準備
+
 - Next.js本番ビルドの最適化
 - CDN・キャッシュ戦略
 - 監視・ログ設定
 - エラートラッキング
 
 ## 次のフェーズへの準備
+
 ルーティング基盤完了により、アバターシステム実装の準備が整いました。
