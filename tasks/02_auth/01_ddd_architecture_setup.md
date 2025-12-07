@@ -1,4 +1,4 @@
-# タスク: DDD/Clean Architecture基盤構築
+# [02_auth] 01_DDD/Clean Architecture基盤構築
 
 ## 概要
 
@@ -24,29 +24,43 @@ DDD/Clean Architectureに基づくディレクトリ構造の作成
 
 ```
 src/
-├── features/           # Feature-Driven Design
-│   └── auth/          # 認証フィーチャー
-│       ├── domain/    # ドメイン層
+├── app/                 # Next.js App Router のルート・レイアウト
+├── features/            # Feature-Driven Design
+│   └── auth/           # 認証フィーチャー
+│       ├── domain/     # ドメイン層
 │       │   ├── entities/
 │       │   ├── repositories/
 │       │   └── services/
-│       ├── application/   # アプリケーション層
+│       ├── application/    # アプリケーション層
 │       │   ├── use-cases/
-│       │   └── dto/
-│       ├── infrastructure/    # インフラ層
-│       │   ├── supabase/
-│       │   └── storage/
-│       └── presentation/      # プレゼンテーション層
-│           ├── components/
-│           ├── hooks/
-│           └── pages/
-├── shared/            # 共通機能
-│   ├── types/
-│   ├── utils/
-│   └── constants/
-└── infrastructure/   # 全体インフラ
-    ├── supabase/
-    └── config/
+│       │   └── hooks/      # Query/Mutation hooks
+│       └── ui/             # プレゼンテーション層
+│           ├── login-form/
+│           │   ├── login-form.tsx
+│           │   ├── login-form.stories.tsx
+│           │   └── index.ts
+│           └── user-avatar/
+│               ├── user-avatar.tsx
+│               ├── user-avatar.stories.tsx
+│               └── index.ts
+├── infrastructure/      # 全体インフラ
+│   ├── api/            # 汎用API クライアント
+│   ├── supabase/       # Supabase Repository実装
+│   └── config/         # 設定
+└── shared/             # 共通機能
+    ├── ui/             # 共通UIコンポーネント（コンポーネント単位でフォルダ分割）
+    │   ├── button/
+    │   │   ├── button.tsx
+    │   │   ├── button.stories.tsx
+    │   │   └── index.ts
+    │   └── card/
+    │       ├── card.tsx
+    │       ├── card.stories.tsx
+    │       └── index.ts
+    ├── lib/            # 汎用ユーティリティ
+    │   ├── utils/
+    │   └── constants/
+    └── config/         # 共通設定
 ```
 
 ### 基本型定義
@@ -103,7 +117,7 @@ export interface AuthRepository {
 
 ## 成果物
 
-- DDD/Clean Architecture ディレクトリ構造
+- DDD/Clean Architecture ディレクトリ構造（next-ddd-clean-frontend.md準拠）
 - 基本エンティティ定義
 - Repository インターフェース
 - TypeScript設定の最適化
@@ -113,6 +127,7 @@ export interface AuthRepository {
 - ディレクトリ構造の確認
 - TypeScript コンパイルエラーなし
 - import/export の動作確認
+- コンポーネント単位のディレクトリ構造（ui配下）の確認
 
 ## 次のタスクへの準備
 

@@ -1,4 +1,4 @@
-# Task: Figmaデザイン完全実装
+# [06b_room_entry_modal] 07_Figmaデザイン完全実装
 
 ## 目標
 
