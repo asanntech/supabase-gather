@@ -1,4 +1,4 @@
-# タスク: インデックス・パフォーマンス最適化
+# [01_database] 04_インデックス・パフォーマンス最適化
 
 ## 概要
 
@@ -31,10 +31,6 @@ ON messages(room_id, created_at DESC);
 CREATE INDEX idx_avatar_positions_room
 ON avatar_positions(room_id);
 
--- プロフィール検索用（名前検索）
-CREATE INDEX idx_profiles_name
-ON profiles(name);
-
 -- メッセージのユーザー別検索用（Google ユーザー）
 CREATE INDEX idx_messages_user_id
 ON messages(user_id) WHERE user_id IS NOT NULL;
@@ -48,9 +44,8 @@ ON avatar_positions(updated_at DESC);
 
 1. **チャット履歴取得**: ルーム別・時系列順
 2. **アバター位置取得**: ルーム内の全アバター
-3. **ユーザー検索**: 名前による部分一致
-4. **メッセージ履歴**: ユーザー別の投稿履歴
-5. **リアルタイム更新**: 最新のアバター位置
+3. **メッセージ履歴**: ユーザー別の投稿履歴
+4. **リアルタイム更新**: 最新のアバター位置
 
 ## パフォーマンス検証
 
@@ -84,7 +79,7 @@ WHERE room_id = '[room-uuid]';
 2. 左メニューから「SQL Editor」を選択
 3. 以下のクエリでインデックス一覧を確認:
    ```sql
-   SELECT 
+   SELECT
      schemaname,
      tablename,
      indexname,
