@@ -61,6 +61,112 @@ Claude / Claude Code は、**フロントエンド関連の作業をする際に
 - バックエンド:
   - Supabase（サーバー側・API 経由で利用）
 
+### TanStack Query 実装例
+
+```ts
+// features/user/use-cases/hooks/useCreateUser.ts
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { CreateUserUseCase } from '../logic/CreateUserUseCase'
+import { userSupabaseClient } from '../../../infrastructure/supabase/UserSupabaseClient'
+import { type CreateUserInput } from '../../domain/User'
+
+export const useCreateUser = () => {
+  const queryClient = useQueryClient()
+  const createUserUseCase = new CreateUserUseCase(userSupabaseClient)
+
+  return useMutation({
+    mutationFn: (input: CreateUserInput) => createUserUseCase.execute(input),
+    onSuccess: user => {
+      // キャッシュ更新
+      queryClient.setQueryData(['user', user.id], user)
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+    onError: error => {
+      console.error('Failed to create user:', error)
+    },
+  })
+}
+```
+
+```ts
+// features/user/use-cases/hooks/useUser.ts
+import { useQuery } from '@tanstack/react-query'
+import { GetUserUseCase } from '../logic/GetUserUseCase'
+import { userSupabaseClient } from '../../../infrastructure/supabase/UserSupabaseClient'
+
+export const useUser = (id: string | null) => {
+  const getUserUseCase = new GetUserUseCase(userSupabaseClient)
+  
+  return useQuery({
+    queryKey: ['user', id],
+    queryFn: () => getUserUseCase.execute(id!),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000, // 5分
+  })
+}
+```
+
+### Supabase 実装例
+
+```ts
+// infrastructure/supabase/client.ts
+import { createClient } from '@supabase/supabase-js'
+
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+```
+
+```ts
+// infrastructure/supabase/UserSupabaseClient.ts
+import { supabase } from './client'
+import { type User } from '../../features/user/domain/User'
+import { type UserRepository } from '../../features/user/domain/UserRepository'
+
+export class UserSupabaseClient implements UserRepository {
+  async findById(id: string): Promise<User | null> {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (error || !data) return null
+    return this.toDomain(data)
+  }
+
+  async create(user: Omit<User, 'id' | 'createdAt'>): Promise<User> {
+    const { data, error } = await supabase
+      .from('profiles')
+      .insert({
+        name: user.name,
+        email: user.email,
+        avatar_type: user.avatarType,
+      })
+      .select()
+      .single()
+
+    if (error) throw new Error(`Failed to create user: ${error.message}`)
+    return this.toDomain(data)
+  }
+
+  // DTO → Domain 変換
+  private toDomain(dto: any): User {
+    return {
+      id: dto.id,
+      name: dto.name,
+      email: dto.email,
+      avatarType: dto.avatar_type,
+      createdAt: new Date(dto.created_at),
+    }
+  }
+}
+
+// シングルトンエクスポート
+export const userSupabaseClient = new UserSupabaseClient()
+```
+
 ---
 
 ## 4. ローカル開発環境
@@ -96,11 +202,12 @@ Claude / Claude Code は、**フロントエンド関連の作業をする際に
 
 5. **環境変数の設定**
    - `.env.local` に以下を設定:
+
      ```
      # クライアントサイド用（ブラウザから利用）
      NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
      NEXT_PUBLIC_SUPABASE_ANON_KEY=<supabase start実行時に表示されるanon key>
-     
+
      # サーバーサイド用（Route Handlers, Server Actions, Server Components）
      SUPABASE_SERVICE_ROLE_KEY=<supabase start実行時に表示されるservice_role key>
      ```
