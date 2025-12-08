@@ -28,7 +28,7 @@ Supabase Authとの連携
 ### 認証ユースケース
 
 ```typescript
-// src/features/auth/application/use-cases/GoogleSignInUseCase.ts
+// src/features/auth/use-cases/GoogleSignInUseCase.ts
 export class GoogleSignInUseCase {
   constructor(
     private authRepository: AuthRepository,

@@ -23,7 +23,7 @@ DDD/Clean Architectureに基づくディレクトリ構造の作成
 ### 基本型定義
 
 ```typescript
-// src/features/auth/domain/entities/User.ts
+// src/features/auth/domain/User.ts
 export interface User {
   id: string
   name: string
@@ -33,7 +33,7 @@ export interface User {
   updatedAt?: Date
 }
 
-// src/features/auth/domain/entities/Profile.ts
+// src/features/auth/domain/Profile.ts
 export interface Profile {
   id: string
   name: string
@@ -42,7 +42,7 @@ export interface Profile {
   updatedAt: Date
 }
 
-// src/features/auth/domain/entities/GuestUser.ts
+// src/features/auth/domain/GuestUser.ts
 export interface GuestUser {
   id: string
   name: string
@@ -54,7 +54,7 @@ export interface GuestUser {
 ### Repository interfaces
 
 ```typescript
-// src/features/auth/domain/repositories/ProfileRepository.ts
+// src/features/auth/domain/ProfileRepository.ts
 export interface ProfileRepository {
   create(
     profile: Omit<Profile, 'id' | 'createdAt' | 'updatedAt'>
@@ -63,7 +63,7 @@ export interface ProfileRepository {
   update(id: string, data: Partial<Profile>): Promise<Profile>
 }
 
-// src/features/auth/domain/repositories/AuthRepository.ts
+// src/features/auth/domain/AuthRepository.ts
 export interface AuthRepository {
   signInWithGoogle(): Promise<User>
   signOut(): Promise<void>
