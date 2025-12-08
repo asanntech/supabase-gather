@@ -67,22 +67,22 @@ src/
 ├── features/
 │   ├── user/
 │   │   ├── domain/    # ドメイン層
-│   │   │   ├── User.ts             # Entity、Value Object、ファクトリー、検証
-│   │   │   └── UserRepository.ts   # Repository Interface
+│   │   │   ├── entities/           # エンティティ群
+│   │   │   │   └── User.ts         # Entity、Value Object、ファクトリー、検証
+│   │   │   ├── repositories/       # リポジトリインターフェース群
+│   │   │   │   └── UserRepository.ts
+│   │   │   └── index.ts            # ドメイン層の統一エクスポート
 │   │   ├── use-cases/   # ユースケース層（React hooks + ビジネスロジック）
-│   │   └── ui/
+│   │   │   ├── logic/              # ビジネスロジック
+│   │   │   └── hooks/              # React hooks
+│   │   └── ui/          # UIコンポーネント
 │   ├── room/
-│   │   ├── domain/
 │   │   └── ...
-│   └── messaging/
-│       ├── domain/
+│   └── authorization/   # 横断的関心事: User×Room認可ロジック
 │       └── ...
-├── domain/     # 複数Entityにまたがるドメインサービス（必要に応じて作成）
-│   ├── UserRoomAuthorizationService.ts    # User×Room
-│   └── MessageModerationService.ts        # User×Message×Room
+│
 ├── infrastructure/     # 全体インフラ
 │   └── api/            # 汎用API クライアント
-│
 │
 └── shared/      # 共通機能
     ├── ui/      # 共通UIコンポーネント（コンポーネント単位でフォルダ分割）
@@ -94,6 +94,23 @@ src/
     ├── constants/    # 定数
     └── types/        # 共通型定義
 ```
+
+### 横断的関心事の取り扱い
+
+複数のEntityやドメインにまたがる処理は、新しいfeatureドメインとして扱います：
+
+```
+features/
+├── authorization/     # User×Roomの認可という独立したドメイン
+├── moderation/       # User×Message×Roomの管理という独立したドメイン
+└── notification/     # User×Room×Messageの通知という独立したドメイン
+```
+
+**命名ガイドライン：**
+
+- 機能を表す名詞を使用（例：`authorization`, `moderation`, `notification`）
+- `-service`サフィックスは避ける
+- 簡潔で直感的な名前を選ぶ
 
 ---
 
