@@ -96,7 +96,7 @@ import { userSupabaseClient } from '../../../infrastructure/supabase/UserSupabas
 
 export const useUser = (id: string | null) => {
   const getUserUseCase = new GetUserUseCase(userSupabaseClient)
-  
+
   return useQuery({
     queryKey: ['user', id],
     queryFn: () => getUserUseCase.execute(id!),

@@ -1,4 +1,4 @@
-# [06a_landing_page] 02_認証ボタン実装
+# [06a_landing_page] 02\_認証ボタン実装
 
 ## 目的
 

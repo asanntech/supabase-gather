@@ -1,4 +1,4 @@
-# [06a_landing_page] 05_エラーハンドリングとUX改善
+# [06a_landing_page] 05\_エラーハンドリングとUX改善
 
 ## 目的
 
