@@ -75,9 +75,38 @@ export interface AuthRepository {
 ## 成果物
 
 - DDD/Clean Architecture ディレクトリ構造（next-ddd-clean-frontend.md準拠）
-- 基本エンティティ定義
+  - entities/ と repositories/ に分離したドメイン構造
+  - 統一されたindex.tsエクスポート
+- 基本エンティティ定義（Zod統合、ファクトリ関数、ビジネスルール）
 - Repository インターフェース
 - TypeScript設定の最適化
+
+## 実装詳細
+
+### ディレクトリ構造
+```
+src/features/auth/
+├── domain/
+│   ├── entities/           # エンティティ群
+│   │   ├── User.ts         # Zodスキーマ、ファクトリ、検証
+│   │   ├── Profile.ts      # プロファイルエンティティ
+│   │   ├── GuestUser.ts    # ゲストユーザー（デフォルト名：「ゲスト」）
+│   │   └── index.ts        # 統一エクスポート
+│   ├── repositories/       # リポジトリインターフェース群
+│   │   ├── AuthRepository.ts
+│   │   ├── ProfileRepository.ts
+│   │   ├── GuestUserRepository.ts
+│   │   └── index.ts
+│   └── index.ts           # ドメイン層統一エクスポート
+├── use-cases/             # ビジネスロジック・React hooks
+└── ui/                   # UIコンポーネント
+```
+
+### エンティティ特徴
+- **Zod統合バリデーション**: 型安全性とランタイム検証
+- **ファクトリ関数**: createUser, createProfile, createGuestUser
+- **ビジネスルール検証**: 明示的な検証関数呼び出し
+- **デフォルト値設定**: GuestUserは「ゲスト」名、ユーザー変更可能
 
 ## 検証方法
 
