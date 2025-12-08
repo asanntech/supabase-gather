@@ -26,6 +26,7 @@ UI ライブラリや CSS 戦略（Tailwind / shadcn/ui / MUI など）は、**�
 
 - **Next.js App Router**
 - **TypeScript**
+- **Zod**（スキーマ検証・型推論）
 - Server Component / Client Component の併用
 - 状態管理・データ取得：TanStack Query（※利用有無は `CLAUDE.md` で指定）
 - UI / CSS：Tailwind、shadcn/ui、MUI 等（※プロジェクト側で指定）
@@ -47,33 +48,51 @@ UI ライブラリや CSS 戦略（Tailwind / shadcn/ui / MUI など）は、**�
 ```
 features/<feature-name>/
   domain/
-  application/
+  use-cases/
   ui/
 ```
 
 ### ● クリーンアーキテクチャ（簡易版）
 
-- 依存方向を明確化：**domain → application → ui**
-- `infrastructure/api` は外部依存として application が利用する層とする。
+- 依存方向を明確化：**domain → use-cases → ui**
+- `infrastructure/api` は外部依存として use-cases が利用する層とする。
 
 ---
 
-## 4. 推奨ディレクトリ構造
+## 4. 推奨ディレクトリ構造例
 
-```txt
+```
 src/
-  app/                 # Next.js App Router のルート・レイアウト
-  features/
-    <feature>/
-      domain/          # ドメイン型・ビジネスルール
-      application/     # ユースケース・Query/Mutaion hook
-      ui/              # 画面・コンポーネント
-  infrastructure/
-    api/               # API クライアント・Repository 実装
-  shared/
-    ui/                # 共通 UI（コンポーネント単位でフォルダ分割、Storybook管理）
-    lib/               # 汎用ユーティリティ
-    config/            # 設定
+├── app/
+├── features/
+│   ├── user/
+│   │   ├── domain/    # ドメイン層
+│   │   │   ├── User.ts             # Entity、Value Object、ファクトリー、検証
+│   │   │   └── UserRepository.ts   # Repository Interface
+│   │   ├── use-cases/   # ユースケース層（React hooks + ビジネスロジック）
+│   │   └── ui/
+│   ├── room/
+│   │   ├── domain/
+│   │   └── ...
+│   └── messaging/
+│       ├── domain/
+│       └── ...
+├── domain/     # 複数Entityにまたがるドメインサービス（必要に応じて作成）
+│   ├── UserRoomAuthorizationService.ts    # User×Room
+│   └── MessageModerationService.ts        # User×Message×Room
+├── infrastructure/     # 全体インフラ
+│   └── api/            # 汎用API クライアント
+│
+│
+└── shared/      # 共通機能
+    ├── ui/      # 共通UIコンポーネント（コンポーネント単位でフォルダ分割）
+    │   └── button/
+    │       ├── button.tsx
+    │       └── index.ts
+    ├── lib/          # ライブラリを使用した共通機能
+    ├── hooks/        # 汎用hooks
+    ├── constants/    # 定数
+    └── types/        # 共通型定義
 ```
 
 ---
@@ -86,30 +105,248 @@ src/
 - 副作用禁止。
 - DTO → Domain モデル変換もここで行うことが多い。
 
-### ● application
-
-- ユースケースの集約。
-- TanStack Query の Query / Mutation hook を提供。
-- `infrastructure/api` の具体実装を呼び出す中心となるレイヤー。
-
-例：
+#### Entity例（統合型）
 
 ```ts
-export const useUserListQuery = () =>
-  useQuery({ queryKey: ['users'], queryFn: fetchUsers })
+// features/user/domain/User.ts
+import { z } from 'zod'
+
+/**
+ * Entity: ユーザー
+ * - 識別子(id)を持つドメインオブジェクト
+ * - Value Object、ファクトリー、検証を統合
+ */
+
+// 基本スキーマ定義（Value Objectの機能も兼ねる）
+export const UserSchema = z.object({
+  id: z.string().uuid(),
+  // Value Object相当: 名前の値制約
+  name: z
+    .string()
+    .min(1, 'Name is required')
+    .max(50, 'Name must be 50 characters or less')
+    .trim(),
+  // Value Object相当: メールアドレスの形式制約
+  email: z.string().email('Invalid email format').toLowerCase(),
+  // Value Object相当: アバタータイプの列挙制約
+  avatarType: z.enum(['blue', 'red', 'green']).default('blue'),
+  createdAt: z.date(),
+})
+
+// TypeScriptの型をZodスキーマから生成
+export type User = z.infer<typeof UserSchema>
+
+// 入力データ用のスキーマ
+export const CreateUserSchema = UserSchema.omit({
+  id: true,
+  createdAt: true,
+})
+
+export const UpdateUserSchema = UserSchema.omit({
+  id: true,
+  createdAt: true,
+}).partial()
+
+export type CreateUserInput = z.infer<typeof CreateUserSchema>
+export type UpdateUserInput = z.infer<typeof UpdateUserSchema>
+
+/**
+ * ファクトリー関数
+ */
+export const createUser = (input: CreateUserInput): User => {
+  // 1. 入力データの検証とサニタイズ
+  const validatedInput = CreateUserSchema.parse(input)
+
+  // 2. エンティティ作成
+  return {
+    id: crypto.randomUUID(),
+    ...validatedInput,
+    createdAt: new Date(),
+  }
+}
+
+export const updateUser = (current: User, updates: UpdateUserInput): User => {
+  const validatedUpdates = UpdateUserSchema.parse(updates)
+
+  return {
+    ...current,
+    ...validatedUpdates,
+  }
+}
+
+/**
+ * ビジネスルール検証
+ */
+export const validateUserBusinessRules = (user: User): boolean => {
+  // 例：特定の組み合わせのバリデーション
+  if (user.name.toLowerCase().includes('admin') && user.avatarType !== 'blue') {
+    throw new Error('Admin users must use blue avatar')
+  }
+
+  return true
+}
+
+// カスタム検証スキーマ
+export const UserWithBusinessRulesSchema = UserSchema.refine(
+  validateUserBusinessRules,
+  {
+    message: 'Business rule validation failed',
+  }
+)
 ```
 
-### ● infrastructure/api
-
-- HTTP クライアント・Repository の具象実装。
-- `fetch` / `axios` / GraphQL client をここに閉じ込める。
-
-例：
+#### Repository Interface例
 
 ```ts
-export const fetchUsers = async (): Promise<UserDto[]> => {
-  // HTTP 実装
+// features/user/domain/UserRepository.ts
+export interface UserRepository {
+  // 基本CRUD
+  findById(id: string): Promise<User | null>
+  findByEmail(email: string): Promise<User | null>
+  create(user: Omit<User, 'id' | 'createdAt'>): Promise<User>
+  update(id: string, data: Partial<User>): Promise<User>
+  delete(id: string): Promise<void>
+
+  // ドメイン固有のクエリ
+  findActiveUsers(): Promise<User[]>
+  findUsersByAvatarType(avatarType: User['avatarType']): Promise<User[]>
 }
+```
+
+### ● use-cases
+
+- ユースケースの集約。
+- `infrastructure/api` の具体実装を呼び出す中心となるレイヤー。
+- ディレクトリは `features/<feature>/use-cases/`として実装する。
+
+#### use-cases例
+
+```ts
+// features/user/use-cases/useCreateUser.ts
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { createUser, type CreateUserInput } from '../domain/User'
+import { userApiClient } from '../../infrastructure/api/UserApiClient'
+
+export const useCreateUser = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (input: CreateUserInput) => {
+      // ビジネスロジック
+      const user = createUser(input)
+      const existing = await userApiClient.findByEmail(user.email)
+      if (existing) {
+        throw new Error(`User with email ${user.email} already exists`)
+      }
+      return await userApiClient.create(user)
+    },
+    onSuccess: user => {
+      queryClient.setQueryData(['user', user.id], user)
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+  })
+}
+```
+
+```ts
+// features/user/use-cases/useUser.ts
+import { useQuery } from '@tanstack/react-query'
+import { userApiClient } from '../../infrastructure/api/UserApiClient'
+
+export const useUser = (id: string | null) => {
+  return useQuery({
+    queryKey: ['user', id],
+    queryFn: () => userApiClient.findById(id!),
+    enabled: !!id,
+  })
+}
+```
+
+### ● infrastructure
+
+- HTTP クライアント・Repository の具象実装。
+- 外部サービスとの接続・データ変換を担当。
+
+#### infrastructure/api 実装例
+
+```ts
+// infrastructure/api/UserApiClient.ts
+import { type User } from '../../features/user/domain/User'
+import { type UserRepository } from '../../features/user/domain/UserRepository'
+
+interface UserDto {
+  id: string
+  name: string
+  email: string
+  avatar_type: string
+  created_at: string
+  updated_at: string
+}
+
+export class UserApiClient implements UserRepository {
+  private baseUrl: string
+
+  constructor(baseUrl: string = '/api') {
+    this.baseUrl = baseUrl
+  }
+
+  async findById(id: string): Promise<User | null> {
+    try {
+      const response = await fetch(`${this.baseUrl}/users/${id}`)
+
+      if (!response.ok) {
+        if (response.status === 404) return null
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      const data: UserDto = await response.json()
+      return this.toDomain(data)
+    } catch (error) {
+      console.error('Failed to fetch user:', error)
+      throw error
+    }
+  }
+
+  async create(user: Omit<User, 'id' | 'createdAt'>): Promise<User> {
+    try {
+      const response = await fetch(`${this.baseUrl}/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: user.name,
+          email: user.email,
+          avatar_type: user.avatarType,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      const data: UserDto = await response.json()
+      return this.toDomain(data)
+    } catch (error) {
+      console.error('Failed to create user:', error)
+      throw error
+    }
+  }
+
+  // DTO → Domain 変換
+  private toDomain(dto: UserDto): User {
+    return {
+      id: dto.id,
+      name: dto.name,
+      email: dto.email,
+      avatarType: dto.avatar_type,
+      createdAt: new Date(dto.created_at),
+    }
+  }
+}
+
+// シングルトンエクスポート
+export const userApiClient = new UserApiClient()
 ```
 
 ### ● ui（feature 配下）
@@ -122,12 +359,9 @@ export const fetchUsers = async (): Promise<UserDto[]> => {
 features/room/ui/
   room-card/
     room-card.tsx
-    room-card.stories.tsx
-    room-card.test.tsx    # 必要に応じて
     index.ts
   room-form/
     room-form.tsx
-    room-form.stories.tsx
     index.ts
 ```
 
@@ -140,11 +374,9 @@ features/room/ui/
 shared/ui/
   button/
     button.tsx
-    button.stories.tsx
     index.ts
   card/
     card.tsx
-    card.stories.tsx
     index.ts
 ```
 

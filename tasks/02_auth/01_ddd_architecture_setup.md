@@ -20,49 +20,6 @@ DDD/Clean Architectureに基づくディレクトリ構造の作成
 
 ## 詳細仕様
 
-### ディレクトリ構造
-
-```
-src/
-├── app/                 # Next.js App Router のルート・レイアウト
-├── features/            # Feature-Driven Design
-│   └── auth/           # 認証フィーチャー
-│       ├── domain/     # ドメイン層
-│       │   ├── entities/
-│       │   ├── repositories/
-│       │   └── services/
-│       ├── application/    # アプリケーション層
-│       │   ├── use-cases/
-│       │   └── hooks/      # Query/Mutation hooks
-│       └── ui/             # プレゼンテーション層
-│           ├── login-form/
-│           │   ├── login-form.tsx
-│           │   ├── login-form.stories.tsx
-│           │   └── index.ts
-│           └── user-avatar/
-│               ├── user-avatar.tsx
-│               ├── user-avatar.stories.tsx
-│               └── index.ts
-├── infrastructure/      # 全体インフラ
-│   ├── api/            # 汎用API クライアント
-│   ├── supabase/       # Supabase Repository実装
-│   └── config/         # 設定
-└── shared/             # 共通機能
-    ├── ui/             # 共通UIコンポーネント（コンポーネント単位でフォルダ分割）
-    │   ├── button/
-    │   │   ├── button.tsx
-    │   │   ├── button.stories.tsx
-    │   │   └── index.ts
-    │   └── card/
-    │       ├── card.tsx
-    │       ├── card.stories.tsx
-    │       └── index.ts
-    ├── lib/            # 汎用ユーティリティ
-    │   ├── utils/
-    │   └── constants/
-    └── config/         # 共通設定
-```
-
 ### 基本型定義
 
 ```typescript
